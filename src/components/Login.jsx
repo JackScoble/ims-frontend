@@ -1,25 +1,26 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
 function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const navigate = useNavigate(); // Add this line!
 
     const handleLogin = async (e) => {
-        e.preventDefault(); // Stop the form from refreshing the page
+        e.preventDefault();
         try {
-            // Send the username and password to your Django /api/token/ endpoint
             const response = await api.post('token/', {
                 username: username,
                 password: password
             });
 
-            // If successful, Django gives us an access token. Save it to LocalStorage!
             localStorage.setItem('access_token', response.data.access);
             localStorage.setItem('refresh_token', response.data.refresh);
-            
-            alert('Login Successful!');
+
+            // Redirect to Dashboard
+            navigate('/dashboard'); 
 
         } catch (err) {
             setError('Invalid username or password');
