@@ -5,6 +5,7 @@ import api from '../api/axios';
 function Dashboard() {
     const [items, setItems] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [editingId, setEditingId] = useState(null);
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
@@ -47,41 +48,6 @@ function Dashboard() {
         }
     };
 
-    const handleAddItem = async (e) => {
-        e.preventDefault(); 
-        try {
-            const formData = new FormData();
-            
-            formData.append('name', newItem.name);
-            formData.append('sku', newItem.sku);
-            formData.append('quantity', newItem.quantity);
-            formData.append('description', newItem.description);
-            
-            if (newItem.category) {
-                formData.append('category', newItem.category);
-            }
-
-            if (newItem.image) {
-                formData.append('image', newItem.image);
-            }
-
-            const response = await api.post('items/', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                }
-            });
-            
-            setItems([...items, response.data]);
-            setNewItem({ name: '', sku: '', quantity: 0, description: '', category: null, image: null });
-            
-            document.getElementById('image-upload').value = ''; 
-
-        } catch (err) {
-            console.error("Backend Error Data:", err.response?.data); 
-            setError('Failed to add item. Check your inputs.');
-        }
-    };
-
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure you want to delete this item?")) {
             return;
@@ -98,6 +64,53 @@ function Dashboard() {
         }
     };
 
+    const startEdit = (item) => {
+        setEditingId(item.id);
+        setNewItem({
+            name: item.name,
+            sku: item.sku,
+            category: item.category || '',
+            quantity: item.quantity,
+            description: item.description,
+            image: null 
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const formData = new FormData();
+            formData.append('name', newItem.name);
+            formData.append('sku', newItem.sku);
+            formData.append('quantity', newItem.quantity);
+            formData.append('description', newItem.description);
+            if (newItem.category) formData.append('category', newItem.category);
+            if (newItem.image) formData.append('image', newItem.image);
+
+            if (editingId) {
+                // PATCH updates only the fields we send
+                const response = await api.patch(`items/${editingId}/`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                setItems(items.map(item => item.id === editingId ? response.data : item));
+                setEditingId(null);
+            } else {
+                const response = await api.post('items/', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                setItems([...items, response.data]);
+            }
+
+            setNewItem({ name: '', sku: '', category: '', quantity: 0, description: '', image: null });
+            document.getElementById('image-upload').value = ''; 
+
+        } catch (err) {
+            console.error("Submit failed:", err.response?.data);
+            setError("Failed to save item.");
+        }
+    };
+
     return (
         <div style={{ padding: '20px' }}>
             
@@ -111,8 +124,8 @@ function Dashboard() {
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
             <div style={{ marginBottom: '30px', padding: '15px', border: '1px solid #ddd', borderRadius: '5px', backgroundColor: '#f9f9f9' }}>
-                <h3>Add New Item</h3>
-                <form onSubmit={handleAddItem} style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <h3>{editingId ? 'Edit Item' : 'Add New Item'}</h3>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                     <input 
                         type="text" 
                         placeholder="Name" 
@@ -160,8 +173,20 @@ function Dashboard() {
                         onChange={(e) => setNewItem({...newItem, image: e.target.files[0]})} 
                     />
                     <button type="submit" style={{ padding: '5px 15px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>
-                        Add Item
+                        {editingId ? 'Update Item' : 'Add Item'}
                     </button>
+                    {editingId && (
+                        <button 
+                            type="button" 
+                            onClick={() => {
+                                setEditingId(null);
+                                setNewItem({ name: '', sku: '', category: '', quantity: 0, description: '', image: null });
+                            }}
+                            style={{ padding: '5px 15px', backgroundColor: '#ccc', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
+                        >
+                            Cancel
+                        </button>
+                    )}
                 </form>
             </div>
             
@@ -171,6 +196,10 @@ function Dashboard() {
                 {items.map(item => (
                     <div key={item.id} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
                         
+                        <button onClick={() => startEdit(item)} style={{ marginRight: '10px', backgroundColor: '#2196F3', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}>
+                            Edit
+                        </button>
+
                         <button 
                             onClick={() => handleDelete(item.id)}
                             style={{ 
