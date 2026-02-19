@@ -82,6 +82,22 @@ function Dashboard() {
         }
     };
 
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this item?")) {
+            return;
+        }
+
+        try {
+            await api.delete(`items/${id}/`);
+            
+            // Update the UI by removing the deleted item from the state
+            setItems(items.filter(item => item.id !== id));
+        } catch (err) {
+            console.error("Delete failed:", err);
+            setError("Failed to delete the item.");
+        }
+    };
+
     return (
         <div style={{ padding: '20px' }}>
             
@@ -155,7 +171,23 @@ function Dashboard() {
                 {items.map(item => (
                     <div key={item.id} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
                         
-                        {/* Display the image if it exists! */}
+                        <button 
+                            onClick={() => handleDelete(item.id)}
+                            style={{ 
+                                top: '10px', 
+                                right: '10px', 
+                                backgroundColor: '#ff4d4d', 
+                                color: 'white', 
+                                border: 'none', 
+                                borderRadius: '3px', 
+                                cursor: 'pointer',
+                                padding: '5px 10px'
+                            }}
+                        >
+                            Delete
+                        </button>
+
+                        {/* Display the image if it exists */}
                         {item.image && (
                             <img 
                                 src={item.image} 
