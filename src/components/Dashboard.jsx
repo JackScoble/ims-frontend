@@ -2,9 +2,16 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
+const modalInputStyle = { padding: '10px', borderRadius: '5px', border: '1px solid #ccc', fontSize: '16px' };
+const successBtnStyle = { padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' };
+const cancelBtnStyle = { padding: '10px 20px', backgroundColor: '#ccc', border: 'none', borderRadius: '5px', cursor: 'pointer' };
+const deleteBtnStyle = { padding: '10px 20px', backgroundColor: '#ff4d4d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' };
+
 function Dashboard() {
     const [items, setItems] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [modalType, setModalType] = useState(null); // 'form' or 'delete'
+    const [itemToDelete, setItemToDelete] = useState(null);
     const [editingId, setEditingId] = useState(null);
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -48,23 +55,15 @@ function Dashboard() {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this item?")) {
-            return;
-        }
-
-        try {
-            await api.delete(`items/${id}/`);
-            
-            // Update the UI by removing the deleted item from the state
-            setItems(items.filter(item => item.id !== id));
-        } catch (err) {
-            console.error("Delete failed:", err);
-            setError("Failed to delete the item.");
-        }
+    // Open Modal for Adding
+    const openAddModal = () => {
+        setEditingId(null);
+        setNewItem({ name: '', sku: '', category: '', quantity: 0, description: '', image: null });
+        setModalType('form');
     };
 
-    const startEdit = (item) => {
+    // Open Modal for Editing
+    const openEditModal = (item) => {
         setEditingId(item.id);
         setNewItem({
             name: item.name,
@@ -74,7 +73,20 @@ function Dashboard() {
             description: item.description,
             image: null 
         });
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setModalType('form');
+    };
+
+    // Open Modal for Delete Confirmation
+    const openDeleteModal = (item) => {
+        setItemToDelete(item);
+        setModalType('delete');
+    };
+
+    // Close any modal
+    const closeModal = () => {
+        setModalType(null);
+        setEditingId(null);
+        setItemToDelete(null);
     };
 
     const handleSubmit = async (e) => {
@@ -124,70 +136,7 @@ function Dashboard() {
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
             <div style={{ marginBottom: '30px', padding: '15px', border: '1px solid #ddd', borderRadius: '5px', backgroundColor: '#f9f9f9' }}>
-                <h3>{editingId ? 'Edit Item' : 'Add New Item'}</h3>
-                <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                    <input 
-                        type="text" 
-                        placeholder="Name" 
-                        value={newItem.name} 
-                        onChange={(e) => setNewItem({...newItem, name: e.target.value})} 
-                        required 
-                    />
-                    <input 
-                        type="text" 
-                        placeholder="SKU" 
-                        value={newItem.sku} 
-                        onChange={(e) => setNewItem({...newItem, sku: e.target.value})} 
-                        required 
-                    />
-                    <input 
-                        type="number" 
-                        placeholder="Quantity" 
-                        value={newItem.quantity} 
-                        onChange={(e) => setNewItem({...newItem, quantity: e.target.value})} 
-                        required 
-                        min="0"
-                    />
-                    <input 
-                        type="text" 
-                        placeholder="Description" 
-                        value={newItem.description} 
-                        onChange={(e) => setNewItem({...newItem, description: e.target.value})} 
-                    />
-                    <select 
-                        value={newItem.category} 
-                        onChange={(e) => setNewItem({...newItem, category: e.target.value})}
-                        style={{ padding: '5px', borderRadius: '3px', border: '1px solid #ccc' }}
-                    >
-                        <option value="">Select a Category</option>
-                        {categories.map(cat => (
-                            <option key={cat.id} value={cat.id}>
-                                {cat.name}
-                            </option>
-                        ))}
-                    </select>
-                    <input 
-                        id="image-upload"
-                        type="file" 
-                        accept="image/*" 
-                        onChange={(e) => setNewItem({...newItem, image: e.target.files[0]})} 
-                    />
-                    <button type="submit" style={{ padding: '5px 15px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>
-                        {editingId ? 'Update Item' : 'Add Item'}
-                    </button>
-                    {editingId && (
-                        <button 
-                            type="button" 
-                            onClick={() => {
-                                setEditingId(null);
-                                setNewItem({ name: '', sku: '', category: '', quantity: 0, description: '', image: null });
-                            }}
-                            style={{ padding: '5px 15px', backgroundColor: '#ccc', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
-                        >
-                            Cancel
-                        </button>
-                    )}
-                </form>
+                <button onClick={openAddModal} style={{ ...successBtnStyle, marginBottom: '20px' }}>+ Add New Item</button>
             </div>
             
             <div style={{ display: 'grid', gap: '15px' }}>
@@ -196,25 +145,8 @@ function Dashboard() {
                 {items.map(item => (
                     <div key={item.id} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
                         
-                        <button onClick={() => startEdit(item)} style={{ marginRight: '10px', backgroundColor: '#2196F3', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}>
-                            Edit
-                        </button>
-
-                        <button 
-                            onClick={() => handleDelete(item.id)}
-                            style={{ 
-                                top: '10px', 
-                                right: '10px', 
-                                backgroundColor: '#ff4d4d', 
-                                color: 'white', 
-                                border: 'none', 
-                                borderRadius: '3px', 
-                                cursor: 'pointer',
-                                padding: '5px 10px'
-                            }}
-                        >
-                            Delete
-                        </button>
+                        <button onClick={() => openEditModal(item)} style={{ marginRight: '10px', backgroundColor: '#2196F3', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}>Edit</button>
+                        <button onClick={() => openDeleteModal(item)} style={deleteBtnStyle}>Delete</button>
 
                         {/* Display the image if it exists */}
                         {item.image && (
@@ -232,6 +164,53 @@ function Dashboard() {
                     </div>
                 ))}
             </div>
+
+            {/* MODAL OVERLAY */}
+            {modalType && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center',
+                    zIndex: 1000, backdropFilter: 'blur(4px)'
+                }}>
+                    <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '10px', width: '450px', boxShadow: '0 4px 15px rgba(0,0,0,0.3)' }}>
+                        
+                        {/* CONTEXT 1: ADD / EDIT FORM */}
+                        {modalType === 'form' && (
+                            <>
+                                <h3>{editingId ? 'Edit Item' : 'Add New Inventory'}</h3>
+                                <form onSubmit={(e) => { handleSubmit(e); closeModal(); }} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                    <input type="text" placeholder="Name" value={newItem.name} onChange={(e) => setNewItem({...newItem, name: e.target.value})} required style={modalInputStyle} />
+                                    <input type="text" placeholder="SKU" value={newItem.sku} onChange={(e) => setNewItem({...newItem, sku: e.target.value})} required style={modalInputStyle} />
+                                    <input type="number" placeholder="Quantity" value={newItem.quantity} onChange={(e) => setNewItem({...newItem, quantity: e.target.value})} required style={modalInputStyle} />
+                                    <textarea placeholder="Description" value={newItem.description} onChange={(e) => setNewItem({...newItem, description: e.target.value})} style={modalInputStyle} />
+                                    <select value={newItem.category} onChange={(e) => setNewItem({...newItem, category: e.target.value})} style={modalInputStyle}>
+                                        <option value="">Select a Category</option>
+                                        {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
+                                    </select>
+                                    <input id="image-upload" type="file" accept="image/*" onChange={(e) => setNewItem({...newItem, image: e.target.files[0]})} />
+                                    
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                                        <button type="button" onClick={closeModal} style={cancelBtnStyle}>Cancel</button>
+                                        <button type="submit" style={successBtnStyle}>{editingId ? 'Save Changes' : 'Add Item'}</button>
+                                    </div>
+                                </form>
+                            </>
+                        )}
+
+                        {/* CONTEXT 2: DELETE CONFIRMATION */}
+                        {modalType === 'delete' && (
+                            <div style={{ textAlign: 'center' }}>
+                                <h2 style={{ color: '#ff4d4d' }}>Delete Item?</h2>
+                                <p>Are you sure you want to delete <strong>{itemToDelete?.name}</strong>? This action cannot be undone.</p>
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginTop: '20px' }}>
+                                    <button onClick={closeModal} style={cancelBtnStyle}>No, Keep it</button>
+                                    <button onClick={() => { handleDelete(itemToDelete.id); closeModal(); }} style={deleteBtnStyle}>Yes, Delete</button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
