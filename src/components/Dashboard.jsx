@@ -15,6 +15,12 @@ function Dashboard() {
     const [editingId, setEditingId] = useState(null);
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    // --- Search, Sort, and Filter State ---
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sortConfig, setSortConfig] = useState('-created_at'); // Default: Newest first
+    const [filterQty, setFilterQty] = useState({ min: '', max: '' });
+    const [filterImage, setFilterImage] = useState(''); // 'yes', 'no', or '' (all)
+    const [filterOwner, setFilterOwner] = useState('');
 
     const [newItem, setNewItem] = useState({
         name: '',
@@ -54,6 +60,9 @@ function Dashboard() {
             console.error('Failed to fetch categories', err);
         }
     };
+
+    // Extract a list of unique owner emails, fallback to "Unknown" if missing
+    const uniqueOwners = Array.from(new Set(items.map(item => item.owner_email))).filter(Boolean);
 
     // Open Modal for Adding
     const openAddModal = () => {
@@ -123,6 +132,40 @@ function Dashboard() {
         }
     };
 
+    // --- Data Processing Engine ---
+    const processedItems = items.filter(item => {
+        // 1. Search: Name or SKU
+        const lowerSearch = searchTerm.toLowerCase();
+        const matchesSearch = item.name.toLowerCase().includes(lowerSearch) || 
+                            item.sku.toLowerCase().includes(lowerSearch);
+
+        // 2. Quantity Filter
+        const min = filterQty.min !== '' ? parseInt(filterQty.min) : 0;
+        const max = filterQty.max !== '' ? parseInt(filterQty.max) : Infinity;
+        const matchesQty = item.quantity >= min && item.quantity <= max;
+
+        // 3. Image Filter
+        let matchesImage = true;
+        if (filterImage === 'yes') matchesImage = !!item.image;
+        if (filterImage === 'no') matchesImage = !item.image;
+
+        // 4. Owner Filter
+        const matchesOwner = filterOwner === '' || item.owner_email === filterOwner;
+
+        return matchesSearch && matchesQty && matchesImage && matchesOwner;
+    }).sort((a, b) => {
+        // Sorting Logic
+        switch (sortConfig) {
+            case 'quantity': return a.quantity - b.quantity; // Low to High
+            case '-quantity': return b.quantity - a.quantity; // High to Low
+            case 'created_at': return new Date(a.created_at) - new Date(b.created_at); // Oldest first
+            case '-created_at': return new Date(b.created_at) - new Date(a.created_at); // Newest first
+            case 'updated_at': return new Date(a.updated_at) - new Date(b.updated_at);
+            case '-updated_at': return new Date(b.updated_at) - new Date(a.updated_at);
+            default: return 0;
+        }
+    });
+
     return (
         <div style={{ padding: '20px' }}>
             
@@ -138,11 +181,74 @@ function Dashboard() {
             <div style={{ marginBottom: '30px', padding: '15px', border: '1px solid #ddd', borderRadius: '5px', backgroundColor: '#f9f9f9' }}>
                 <button onClick={openAddModal} style={{ ...successBtnStyle, marginBottom: '20px' }}>+ Add New Item</button>
             </div>
+
+            {/* --- SEARCH & FILTER CONTROL PANEL --- */}
+            <div style={{ backgroundColor: '#f4f4f9', padding: '20px', borderRadius: '8px', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                
+                {/* Top Row: Search and Sort */}
+                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                    <input 
+                        type="text" 
+                        placeholder="Search by Name or SKU..." 
+                        value={searchTerm} 
+                        onChange={(e) => setSearchTerm(e.target.value)} 
+                        style={{ flex: 1, padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
+                    />
+                    <select 
+                        value={sortConfig} 
+                        onChange={(e) => setSortConfig(e.target.value)}
+                        style={{ padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
+                    >
+                        <option value="-created_at">Newest First</option>
+                        <option value="created_at">Oldest First</option>
+                        <option value="-updated_at">Recently Updated</option>
+                        <option value="-quantity">Quantity: High to Low</option>
+                        <option value="quantity">Quantity: Low to High</option>
+                    </select>
+                </div>
+
+                {/* Bottom Row: Filters */}
+                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <label>Quantity:</label>
+                        <input type="number" placeholder="Min" value={filterQty.min} onChange={(e) => setFilterQty({...filterQty, min: e.target.value})} style={{ width: '70px', padding: '8px' }} min="0"/>
+                        <span>-</span>
+                        <input type="number" placeholder="Max" value={filterQty.max} onChange={(e) => setFilterQty({...filterQty, max: e.target.value})} style={{ width: '70px', padding: '8px' }} min="0"/>
+                    </div>
+
+                    <select value={filterImage} onChange={(e) => setFilterImage(e.target.value)} style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }}>
+                        <option value="">Images: All</option>
+                        <option value="yes">Has Image</option>
+                        <option value="no">No Image</option>
+                    </select>
+
+                    <select 
+                        value={filterOwner} 
+                        onChange={(e) => setFilterOwner(e.target.value)} 
+                        style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc', width: '200px' }}
+                    >
+                        <option value="">All Owners</option>
+                        {uniqueOwners.map(email => (
+                            <option key={email} value={email}>
+                                {email}
+                            </option>
+                        ))}
+                    </select>
+                    
+                    {/* Reset Filters Button */}
+                    <button 
+                        onClick={() => { setSearchTerm(''); setSortConfig('-created_at'); setFilterQty({min:'', max:''}); setFilterImage(''); setFilterOwner(''); }}
+                        style={{ padding: '8px 15px', backgroundColor: '#e0e0e0', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                    >
+                        Clear Filters
+                    </button>
+                </div>
+            </div>
             
             <div style={{ display: 'grid', gap: '15px' }}>
-                {items.length === 0 ? <p>No items found.</p> : null}
+                {processedItems.length === 0 ? <p>No items found.</p> : null}
                 
-                {items.map(item => (
+                {processedItems.map(item => (
                     <div key={item.id} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
                         
                         <button onClick={() => openEditModal(item)} style={{ marginRight: '10px', backgroundColor: '#2196F3', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}>Edit</button>
@@ -161,6 +267,7 @@ function Dashboard() {
                         <p><strong>Category:</strong> {item.category_name || 'None'}</p>
                         <p><strong>Quantity:</strong> {item.quantity}</p>
                         <p><strong>Description:</strong> {item.description}</p>
+                        <p><strong>Added By:</strong> {item.owner_email || 'No email provided'}</p>
                     </div>
                 ))}
             </div>
