@@ -4,43 +4,51 @@ import toast from 'react-hot-toast';
 import api from '../api/axios';
 import '../App.css';
 
-function Login() {
+function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
-        setIsLoading(true);
+        
+        // 1. Check passwords BEFORE starting the loader
+        if (password !== confirmPassword) {
+            return toast.error("Passwords do not match"); 
+        }
 
-        // Create a promise that resolves after 1 second
+        setIsLoading(true);
         const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
         try {
-            // Run the API call and the delay at the same time
-            const [response] = await Promise.all([
-                api.post('token/', { username: email, password }),
-                delay(1000) // Ensure the spinner shows for at least 1s
+            // 2. Use Promise.all to run the API and the 1s timer together
+            await Promise.all([
+                api.post('register/', {
+                    email: email,
+                    password: password
+                }),
+                delay(1000) // This ensures the spinner is seen for at least 1s
             ]);
 
-            localStorage.setItem('access_token', response.data.access);
-            localStorage.setItem('refresh_token', response.data.refresh);
-            
-            toast.success('Welcome back!');
-            navigate('/dashboard');
+            toast.success('Account created! Please log in.');
+            navigate('/login');
         } catch (err) {
-            toast.error('Invalid credentials');
+            // 3. Handle specific backend errors (e.g., email already exists)
+            const errorMessage = err.response?.data?.email?.[0] || 'Registration failed.';
+            toast.error(errorMessage);
         } finally {
+            // 4. Always turn off the spinner
             setIsLoading(false);
         }
     };
 
     return (
         <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
-            <h2>IMS Login</h2>
-            
-            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <h2>Create Account</h2>
+
+            <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                 <input 
                     type="email" 
                     placeholder="Email Address" 
@@ -55,6 +63,13 @@ function Login() {
                     onChange={(e) => setPassword(e.target.value)} 
                     required 
                 />
+                <input 
+                    type="password" 
+                    placeholder="Confirm Password" 
+                    value={confirmPassword} 
+                    onChange={(e) => setConfirmPassword(e.target.value)} 
+                    required 
+                />
                 <button type="submit" disabled={isLoading} style={{
                     padding: '12px',
                     backgroundColor: '#2196F3',
@@ -63,7 +78,7 @@ function Login() {
                     borderRadius: '5px',
                     cursor: 'pointer',
                     fontSize: '16px',
-                    display: 'flex',            
+                    display: 'flex',            // Keep items centered
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}>
@@ -73,15 +88,15 @@ function Login() {
                             <span>Processing...</span>
                         </>
                     ) : (
-                        'Log In'
+                        'Create Account'
                     )}
                 </button>
             </form>
             <p style={{ marginTop: '15px' }}>
-                Don't have an account? <Link to="/register">Register here</Link>
+                Already have an account? <Link to="/login">Log in here</Link>
             </p>
         </div>
     );
 }
 
-export default Login;
+export default Register;

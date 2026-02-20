@@ -1,22 +1,36 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import Login from './components/Login';
+import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 
-function App() {
-  const isAuthenticated = !!localStorage.getItem('access_token');
+// A simple wrapper to protect routes
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('access_token');
+  return token ? children : <Navigate to="/login" />;
+};
 
+function App() {
   return (
     <BrowserRouter>
+      <Toaster position="top-center" reverseOrder={false} />
       <Routes>
+        {/* Public Routes */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         
-        {/* Protect the dashboard route */}
+        {/* Protected Dashboard Route */}
         <Route 
           path="/dashboard" 
-          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
         />
         
-        <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} />
+        {/* Catch-all: Redirect to dashboard if logged in, else login */}
+        <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
     </BrowserRouter>
   );
