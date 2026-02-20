@@ -26,6 +26,7 @@ function Login() {
 
             localStorage.setItem('access_token', response.data.access);
             localStorage.setItem('refresh_token', response.data.refresh);
+            localStorage.setItem('user_email', email);
             
             toast.success('Welcome back!');
             navigate('/dashboard');
