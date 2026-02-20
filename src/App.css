@@ -40,3 +40,29 @@
 .read-the-docs {
   color: #888;
 }
+
+/* The Spinning Ring */
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff; /* White part of the ring */
+  animation: spin 0.8s ease-in-out infinite;
+  display: inline-block;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Optional: Pulse effect for the button when loading */
+button:disabled {
+  background-color: #8bb8e0 !important; /* Muted color when loading */
+  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

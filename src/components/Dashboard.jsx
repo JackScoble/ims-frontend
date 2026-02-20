@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import api from '../api/axios';
 
 const modalInputStyle = { padding: '10px', borderRadius: '5px', border: '1px solid #ccc', fontSize: '16px' };
@@ -34,7 +35,10 @@ function Dashboard() {
     const handleLogout = () => {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        navigate('/login');
+        toast('Logged out successfully', { icon: '👋' });
+        setTimeout(() => {
+            window.location.href = '/login';
+        }, 500);
     };
 
     useEffect(() => {
@@ -110,7 +114,6 @@ function Dashboard() {
             if (newItem.image) formData.append('image', newItem.image);
 
             if (editingId) {
-                // PATCH updates only the fields we send
                 const response = await api.patch(`items/${editingId}/`, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
