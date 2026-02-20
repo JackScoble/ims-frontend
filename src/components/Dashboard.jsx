@@ -65,6 +65,8 @@ function Dashboard() {
         }
     };
 
+    const currentUserEmail = localStorage.getItem('user_email');
+
     // Extract a list of unique owner emails, fallback to "Unknown" if missing
     const uniqueOwners = Array.from(new Set(items.map(item => item.owner_email))).filter(Boolean);
 
@@ -127,11 +129,23 @@ function Dashboard() {
             }
 
             setNewItem({ name: '', sku: '', category: '', quantity: 0, description: '', image: null });
-            document.getElementById('image-upload').value = ''; 
+            const fileInput = document.getElementById('image-upload');
+            if (fileInput) fileInput.value = '';
 
         } catch (err) {
             console.error("Submit failed:", err.response?.data);
             setError("Failed to save item.");
+        }
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await api.delete(`items/${id}/`);
+            setItems(items.filter(item => item.id !== id));
+            toast.success('Item deleted successfully');
+        } catch (err) {
+            const msg = err.response?.data?.detail || 'Failed to delete';
+            toast.error(msg);
         }
     };
 
@@ -255,7 +269,9 @@ function Dashboard() {
                     <div key={item.id} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
                         
                         <button onClick={() => openEditModal(item)} style={{ marginRight: '10px', backgroundColor: '#2196F3', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}>Edit</button>
-                        <button onClick={() => openDeleteModal(item)} style={deleteBtnStyle}>Delete</button>
+                        {item.owner_email === currentUserEmail && (
+                            <button onClick={() => openDeleteModal(item)} style={deleteBtnStyle}>Delete</button>
+                        )}
 
                         {/* Display the image if it exists */}
                         {item.image && (
