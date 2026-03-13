@@ -228,9 +228,9 @@ function Dashboard() {
                 <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                         <label>Quantity:</label>
-                        <input type="number" placeholder="Min" value={filterQty.min} onChange={(e) => setFilterQty({...filterQty, min: e.target.value})} style={{ width: '70px', padding: '8px' }} min="0"/>
+                        <input type="number" placeholder="Min" value={filterQty.min} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setFilterQty({...filterQty, min: e.target.value.replace(/\D/g, '')})} style={{ width: '70px', padding: '8px' }} min="0"/>
                         <span>-</span>
-                        <input type="number" placeholder="Max" value={filterQty.max} onChange={(e) => setFilterQty({...filterQty, max: e.target.value})} style={{ width: '70px', padding: '8px' }} min="0"/>
+                        <input type="number" placeholder="Max" value={filterQty.max} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setFilterQty({...filterQty, max: e.target.value.replace(/\D/g, '')})} style={{ width: '70px', padding: '8px' }} min={filterQty.min || 0}/>
                     </div>
 
                     <select value={filterImage} onChange={(e) => setFilterImage(e.target.value)} style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }}>
@@ -307,7 +307,7 @@ function Dashboard() {
                                 <form onSubmit={(e) => { handleSubmit(e); closeModal(); }} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                                     <input type="text" placeholder="Name" value={newItem.name} onChange={(e) => setNewItem({...newItem, name: e.target.value})} required style={modalInputStyle} />
                                     <input type="text" placeholder="SKU" value={newItem.sku} onChange={(e) => setNewItem({...newItem, sku: e.target.value})} required style={modalInputStyle} />
-                                    <input type="number" placeholder="Quantity" value={newItem.quantity} onChange={(e) => setNewItem({...newItem, quantity: e.target.value})} required style={modalInputStyle} />
+                                    <input type="number" placeholder="Quantity" value={newItem.quantity} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setNewItem({...newItem, quantity: e.target.value.replace(/\D/g, '')})} required style={modalInputStyle} />
                                     <textarea placeholder="Description" value={newItem.description} onChange={(e) => setNewItem({...newItem, description: e.target.value})} style={modalInputStyle} />
                                     <select value={newItem.category} onChange={(e) => setNewItem({...newItem, category: e.target.value})} style={modalInputStyle}>
                                         <option value="">Select a Category</option>
