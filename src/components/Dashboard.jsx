@@ -14,6 +14,10 @@ function Dashboard() {
     const [modalType, setModalType] = useState(null); // 'form' or 'delete'
     const [itemToDelete, setItemToDelete] = useState(null);
     const [editingId, setEditingId] = useState(null);
+    const [viewingItem, setViewingItem] = useState(null);
+    const [auditHistory, setAuditHistory] = useState([]);
+    const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+    const [historyError, setHistoryError] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
     // --- Search, Sort, and Filter State ---
@@ -97,11 +101,38 @@ function Dashboard() {
         setModalType('delete');
     };
 
+    const fetchItemDetails = async (itemId) => {
+        setIsLoadingHistory(true);
+        setHistoryError('');
+        try {
+            // Fetch the full item details, which includes audit_logs
+            const response = await api.get(`items/${itemId}/`);
+            setViewingItem(response.data);
+            setAuditHistory(response.data.audit_logs || []);
+        } catch (err) {
+            console.error('Failed to fetch item details', err);
+            setHistoryError('Unable to load item details and audit history.');
+            setViewingItem(null);
+            setAuditHistory([]);
+        } finally {
+            setIsLoadingHistory(false);
+        }
+    };
+
+    const openViewModal = (item) => {
+        setModalType('view');
+        fetchItemDetails(item.id);
+    };
+
     // Close any modal
     const closeModal = () => {
         setModalType(null);
         setEditingId(null);
         setItemToDelete(null);
+        setViewingItem(null);
+        setAuditHistory([]);
+        setHistoryError('');
+        setIsLoadingHistory(false);
     };
 
     const handleSubmit = async (e) => {
@@ -268,6 +299,7 @@ function Dashboard() {
                 {processedItems.map(item => (
                     <div key={item.id} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
                         
+                        <button onClick={() => openViewModal(item)} style={{ marginRight: '10px', backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}>View</button>
                         <button onClick={() => openEditModal(item)} style={{ marginRight: '10px', backgroundColor: '#2196F3', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}>Edit</button>
                         {item.owner_email === currentUserEmail && (
                             <button onClick={() => openDeleteModal(item)} style={deleteBtnStyle}>Delete</button>
@@ -323,7 +355,60 @@ function Dashboard() {
                             </>
                         )}
 
-                        {/* CONTEXT 2: DELETE CONFIRMATION */}
+                        {/* CONTEXT 2: VIEW ITEM + AUDIT HISTORY */}
+                        {modalType === 'view' && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                <h3>View Item</h3>
+                                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                                    {viewingItem?.image && (
+                                        <img src={viewingItem.image} alt={viewingItem.name} style={{ width: '150px', height: '150px', objectFit: 'cover', borderRadius: '8px' }} />
+                                    )}
+                                    <div style={{ flex: 1, minWidth: '220px' }}>
+                                        <p><strong>Name:</strong> {viewingItem?.name}</p>
+                                        <p><strong>SKU:</strong> {viewingItem?.sku}</p>
+                                        <p><strong>Category:</strong> {viewingItem?.category_name || 'None'}</p>
+                                        <p><strong>Quantity:</strong> {viewingItem?.quantity}</p>
+                                        <p><strong>Description:</strong> {viewingItem?.description || '—'}</p>
+                                        <p><strong>Added By:</strong> {viewingItem?.owner_email || '—'}</p>
+                                    </div>
+                                </div>
+
+                                <div style={{ borderTop: '1px solid #eee', paddingTop: '15px' }}>
+                                    <h4 style={{ margin: '0 0 10px 0' }}>Audit History</h4>
+
+                                    {isLoadingHistory ? (
+                                        <p>Loading audit history…</p>
+                                    ) : historyError ? (
+                                        <p style={{ color: 'red' }}>{historyError}</p>
+                                    ) : auditHistory.length === 0 ? (
+                                        <p>No audit history found for this item.</p>
+                                    ) : (
+                                        <div style={{ maxHeight: '260px', overflowY: 'auto', paddingRight: '10px' }}>
+                                            {auditHistory.map((entry, idx) => (
+                                                <div key={entry.id || idx} style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
+                                                    <p style={{ margin: '0 0 5px 0' }}>
+                                                        <strong>{entry.action || 'Change'}</strong> by {entry.username || 'Unknown'} 
+                                                        <span style={{ fontSize: '12px', color: '#666' }}> ({new Date(entry.timestamp).toLocaleString()})</span>
+                                                    </p>
+                                                    <p style={{ margin: '0 0 5px 0', fontSize: '14px' }}>{entry.description || 'No description'}</p>
+                                                    {entry.fields_changed_count > 0 && (
+                                                        <p style={{ margin: '0', fontSize: '12px', color: '#888' }}>
+                                                            Fields changed: {entry.fields_changed_count}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                                    <button onClick={closeModal} style={cancelBtnStyle}>Close</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* CONTEXT 3: DELETE CONFIRMATION */}
                         {modalType === 'delete' && (
                             <div style={{ textAlign: 'center' }}>
                                 <h2 style={{ color: '#ff4d4d' }}>Delete Item?</h2>
