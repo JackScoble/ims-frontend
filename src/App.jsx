@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Login from './components/Login';
 import Register from './components/Register';
-import Dashboard from './components/Dashboard';
+import Dashboard from './components/pages/Dashboard';
 
 // A simple wrapper to protect routes
 const ProtectedRoute = ({ children }) => {
