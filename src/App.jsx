@@ -2,7 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Login from './components/Login';
 import Register from './components/Register';
-import Dashboard from './components/pages/Dashboard';
+import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
+import Analytics from './pages/Analytics';
+import AuditLog from './pages/AuditLog';
 
 // A simple wrapper to protect routes
 const ProtectedRoute = ({ children }) => {
@@ -19,15 +22,18 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         
-        {/* Protected Dashboard Route */}
+        {/* Protected Routes wrapped in Layout */}
         <Route 
-          path="/dashboard" 
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <Layout />
             </ProtectedRoute>
-          } 
-        />
+          }
+        >
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/audit" element={<AuditLog />} />
+        </Route>
         
         {/* Catch-all: Redirect to dashboard if logged in, else login */}
         <Route path="*" element={<Navigate to="/dashboard" />} />
