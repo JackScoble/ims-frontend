@@ -328,7 +328,12 @@ function Dashboard() {
                                         step="0.01" 
                                         placeholder="Price (£)" 
                                         value={newItem.price} 
-                                        onChange={(e) => setNewItem({...newItem, price: e.target.value})}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (val === '' || /^\d*\.?\d{0,2}$/.test(val)) {
+                                                setNewItem({...newItem, price: val});
+                                            }
+                                        }}
                                         min="0.01"
                                         required 
                                         style={modalInputStyle} 
@@ -360,7 +365,6 @@ function Dashboard() {
                                         <p><strong>Name:</strong> {viewingItem?.name}</p>
                                         <p><strong>SKU:</strong> {viewingItem?.sku}</p>
                                         <p><strong>Category:</strong> {viewingItem?.category_name || 'None'}</p>
-                                        {/* NEW: Viewing Price */}
                                         <p><strong>Price:</strong> £{viewingItem?.price}</p>
                                         <p><strong>Quantity:</strong> {viewingItem?.quantity}</p>
                                         <p><strong>Description:</strong> {viewingItem?.description || '—'}</p>
