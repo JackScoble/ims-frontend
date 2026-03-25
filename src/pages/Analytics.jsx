@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import api from '../api/axios';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  PieChart, Pie, Cell
+  PieChart, Pie, Cell, LineChart, Line
 } from 'recharts';
 
 const Analytics = () => {
   const [items, setItems] = useState([]);
   const [auditCount, setAuditCount] = useState(0);
   const [usersCount, setUsersCount] = useState(0);
+  const [historyData, setHistoryData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -33,6 +34,14 @@ const Analytics = () => {
       } catch (userErr) {
         console.warn("Could not fetch users list. Endpoint might be protected or named differently.");
         setUsersCount("N/A"); 
+      }
+
+      // 4. Fetch Historical Snapshots
+      try {
+        const historyRes = await api.get('snapshots/');
+        setHistoryData(historyRes.data);
+      } catch (historyErr) {
+        console.error("Failed to fetch history data:", historyErr);
       }
 
       setLoading(false);
@@ -73,6 +82,17 @@ const Analytics = () => {
     name: key,
     value: categoryCount[key]
   }));
+
+  // Format dynamic historical data
+  const dynamicChartData = historyData.map(snap => {
+    const dateObj = new Date(snap.date);
+    const formattedDate = dateObj.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' });
+    
+    return {
+      date: formattedDate,
+      value: parseFloat(snap.total_value) || 0
+    };
+  });
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
@@ -125,6 +145,33 @@ const Analytics = () => {
 
       {/* --- CHARTS SECTION --- */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '40px' }}>
+        
+        {/* LINE CHART : Daily Stock Snapshot */}
+        <div style={{ flex: '1 1 100%', backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', minWidth: 0 }}>
+          <h3 style={{ textAlign: 'center', marginBottom: '20px', color: '#333' }}>Total Stock Value Over Time</h3>
+          <ResponsiveContainer width="100%" height={400}>
+            <LineChart data={dynamicChartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis 
+                tickFormatter={(value) => `£${value}`} 
+                width={80}
+              />
+              <Tooltip 
+                formatter={(value) => [`£${value.toFixed(2)}`, 'Total Value']} 
+              />
+              <Legend />
+              <Line 
+                type="monotone" 
+                dataKey="value" 
+                stroke="#8884d8"
+                strokeWidth={3}
+                name="Stock Value (£)"
+                activeDot={{ r: 8 }} 
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
         
         {/* BAR CHART: Stock Levels */}
         <div style={{ flex: '1 1 400px', backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', minWidth: 0 }}>
