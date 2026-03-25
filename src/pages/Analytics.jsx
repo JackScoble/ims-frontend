@@ -26,13 +26,13 @@ const Analytics = () => {
       const auditRes = await api.get('audit/');
       setAuditCount(auditRes.data.length);
 
-      // 3. Fetch Users safely (in case your endpoint is named differently)
+      // 3. Fetch Users safely
       try {
         const usersRes = await api.get('users/'); 
         setUsersCount(usersRes.data.length);
       } catch (userErr) {
         console.warn("Could not fetch users list. Endpoint might be protected or named differently.");
-        setUsersCount("N/A"); // Fallback if the user endpoint isn't accessible
+        setUsersCount("N/A"); 
       }
 
       setLoading(false);
@@ -47,8 +47,14 @@ const Analytics = () => {
 
   // KPI Calculations
   const totalUniqueItems = items.length;
-  // This adds up the 'quantity' of every single item in the array
   const totalStockQuantity = items.reduce((sum, item) => sum + item.quantity, 0); 
+
+  const totalStockValue = items.reduce((sum, item) => {
+    const itemPrice = parseFloat(item.price) || 0;
+    return sum + (item.quantity * itemPrice);
+  }, 0);
+  
+  const formattedStockValue = `£${totalStockValue.toFixed(2)}`;
 
   // Format data for the Bar Chart
   const stockData = items.map(item => ({
@@ -89,7 +95,7 @@ const Analytics = () => {
       <h2>Inventory Analytics</h2>
       <p style={{ color: '#666', marginBottom: '20px' }}>Real-time data visualization and system metrics.</p>
 
-      {/* --- NEW: KPI SUMMARY CARDS --- */}
+      {/* --- KPI SUMMARY CARDS --- */}
       <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', flexWrap: 'wrap' }}>
         <div style={cardStyle}>
           <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>Total Users</h4>
@@ -104,6 +110,11 @@ const Analytics = () => {
         <div style={cardStyle}>
           <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>Total Stock Quantity</h4>
           <h1 style={{ margin: 0, color: '#FFBB28', fontSize: '2.5rem' }}>{totalStockQuantity}</h1>
+        </div>
+
+        <div style={cardStyle}>
+          <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>Total Stock Value</h4>
+          <h1 style={{ margin: 0, color: '#8884d8', fontSize: '2.5rem' }}>{formattedStockValue}</h1>
         </div>
         
         <div style={cardStyle}>
