@@ -7,6 +7,8 @@ import {
 
 const Analytics = () => {
   const [items, setItems] = useState([]);
+  const [auditCount, setAuditCount] = useState(0);
+  const [usersCount, setUsersCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -16,8 +18,23 @@ const Analytics = () => {
 
   const fetchData = async () => {
     try {
-      const response = await api.get('items/');
-      setItems(response.data);
+      // 1. Fetch Items
+      const itemsRes = await api.get('items/');
+      setItems(itemsRes.data);
+
+      // 2. Fetch Audit Logs (just to get the total count)
+      const auditRes = await api.get('audit/');
+      setAuditCount(auditRes.data.length);
+
+      // 3. Fetch Users safely (in case your endpoint is named differently)
+      try {
+        const usersRes = await api.get('users/'); 
+        setUsersCount(usersRes.data.length);
+      } catch (userErr) {
+        console.warn("Could not fetch users list. Endpoint might be protected or named differently.");
+        setUsersCount("N/A"); // Fallback if the user endpoint isn't accessible
+      }
+
       setLoading(false);
     } catch (err) {
       console.error("Failed to fetch analytics data:", err);
@@ -26,15 +43,20 @@ const Analytics = () => {
     }
   };
 
-  // --- DATA PROCESSING FOR CHARTS ---
+  // --- DATA PROCESSING FOR CHARTS & KPIS ---
 
-  // 1. Format data for the Bar Chart (Stock Levels)
+  // KPI Calculations
+  const totalUniqueItems = items.length;
+  // This adds up the 'quantity' of every single item in the array
+  const totalStockQuantity = items.reduce((sum, item) => sum + item.quantity, 0); 
+
+  // Format data for the Bar Chart
   const stockData = items.map(item => ({
     name: item.name,
     quantity: item.quantity
   }));
 
-  // 2. Format data for the Pie Chart (Items per Category)
+  // Format data for the Pie Chart
   const categoryCount = items.reduce((acc, item) => {
     const catName = item.category_name || `Category ${item.category}`; 
     acc[catName] = (acc[catName] || 0) + 1;
@@ -46,8 +68,18 @@ const Analytics = () => {
     value: categoryCount[key]
   }));
 
-  // Colors for the Pie Chart
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+
+  // --- STYLING HELPERS ---
+  const cardStyle = {
+    flex: '1 1 200px',
+    backgroundColor: '#fff',
+    padding: '20px',
+    borderRadius: '8px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    textAlign: 'center',
+    minWidth: 0
+  };
 
   if (loading) return <div style={{ padding: '20px' }}>Loading analytics...</div>;
   if (error) return <div style={{ padding: '20px', color: 'red' }}>{error}</div>;
@@ -55,14 +87,37 @@ const Analytics = () => {
   return (
     <div style={{ padding: '20px' }}>
       <h2>Inventory Analytics</h2>
-      <p>Real-time data visualization of your stock.</p>
+      <p style={{ color: '#666', marginBottom: '20px' }}>Real-time data visualization and system metrics.</p>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '40px', marginTop: '30px' }}>
+      {/* --- NEW: KPI SUMMARY CARDS --- */}
+      <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', flexWrap: 'wrap' }}>
+        <div style={cardStyle}>
+          <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>Total Users</h4>
+          <h1 style={{ margin: 0, color: '#0088FE', fontSize: '2.5rem' }}>{usersCount}</h1>
+        </div>
+        
+        <div style={cardStyle}>
+          <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>Unique Items</h4>
+          <h1 style={{ margin: 0, color: '#00C49F', fontSize: '2.5rem' }}>{totalUniqueItems}</h1>
+        </div>
+        
+        <div style={cardStyle}>
+          <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>Total Stock Quantity</h4>
+          <h1 style={{ margin: 0, color: '#FFBB28', fontSize: '2.5rem' }}>{totalStockQuantity}</h1>
+        </div>
+        
+        <div style={cardStyle}>
+          <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>Total Actions Logged</h4>
+          <h1 style={{ margin: 0, color: '#FF8042', fontSize: '2.5rem' }}>{auditCount}</h1>
+        </div>
+      </div>
+
+      {/* --- CHARTS SECTION --- */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '40px' }}>
         
         {/* BAR CHART: Stock Levels */}
         <div style={{ flex: '1 1 400px', backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', minWidth: 0 }}>
           <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Stock Levels by Item</h3>
-          {/* We removed the extra div and moved height={300} directly here */}
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={stockData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -78,7 +133,6 @@ const Analytics = () => {
         {/* PIE CHART: Category Distribution */}
         <div style={{ flex: '1 1 300px', backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', minWidth: 0 }}>
           <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Items by Category</h3>
-          {/* We removed the extra div and moved height={300} directly here */}
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
