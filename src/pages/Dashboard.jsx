@@ -11,7 +11,7 @@ const deleteBtnStyle = { padding: '10px 20px', backgroundColor: '#ff4d4d', color
 function Dashboard() {
     const [items, setItems] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [modalType, setModalType] = useState(null); // 'form' or 'delete'
+    const [modalType, setModalType] = useState(null); 
     const [itemToDelete, setItemToDelete] = useState(null);
     const [editingId, setEditingId] = useState(null);
     const [viewingItem, setViewingItem] = useState(null);
@@ -20,11 +20,11 @@ function Dashboard() {
     const [historyError, setHistoryError] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    // --- Search, Sort, and Filter State ---
+
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortConfig, setSortConfig] = useState('-created_at'); // Default: Newest first
+    const [sortConfig, setSortConfig] = useState('-created_at'); 
     const [filterQty, setFilterQty] = useState({ min: '', max: '' });
-    const [filterImage, setFilterImage] = useState(''); // 'yes', 'no', or '' (all)
+    const [filterImage, setFilterImage] = useState(''); 
     const [filterOwner, setFilterOwner] = useState('');
 
     const [newItem, setNewItem] = useState({
@@ -32,6 +32,7 @@ function Dashboard() {
         sku: '',
         category: '',
         quantity: 0,
+        price: '', 
         description: '',
         image: null
     });
@@ -70,18 +71,14 @@ function Dashboard() {
     };
 
     const currentUserEmail = localStorage.getItem('user_email');
-
-    // Extract a list of unique owner emails, fallback to "Unknown" if missing
     const uniqueOwners = Array.from(new Set(items.map(item => item.owner_email))).filter(Boolean);
 
-    // Open Modal for Adding
     const openAddModal = () => {
         setEditingId(null);
-        setNewItem({ name: '', sku: '', category: '', quantity: 0, description: '', image: null });
+        setNewItem({ name: '', sku: '', category: '', quantity: 0, price: '', description: '', image: null });
         setModalType('form');
     };
 
-    // Open Modal for Editing
     const openEditModal = (item) => {
         setEditingId(item.id);
         setNewItem({
@@ -89,13 +86,13 @@ function Dashboard() {
             sku: item.sku,
             category: item.category || '',
             quantity: item.quantity,
+            price: item.price || '', 
             description: item.description,
             image: null 
         });
         setModalType('form');
     };
 
-    // Open Modal for Delete Confirmation
     const openDeleteModal = (item) => {
         setItemToDelete(item);
         setModalType('delete');
@@ -105,7 +102,6 @@ function Dashboard() {
         setIsLoadingHistory(true);
         setHistoryError('');
         try {
-            // Fetch the full item details, which includes audit_logs
             const response = await api.get(`items/${itemId}/`);
             setViewingItem(response.data);
             setAuditHistory(response.data.audit_logs || []);
@@ -124,7 +120,6 @@ function Dashboard() {
         fetchItemDetails(item.id);
     };
 
-    // Close any modal
     const closeModal = () => {
         setModalType(null);
         setEditingId(null);
@@ -142,6 +137,7 @@ function Dashboard() {
             formData.append('name', newItem.name);
             formData.append('sku', newItem.sku);
             formData.append('quantity', newItem.quantity);
+            formData.append('price', newItem.price); 
             formData.append('description', newItem.description);
             if (newItem.category) formData.append('category', newItem.category);
             if (newItem.image) formData.append('image', newItem.image);
@@ -159,7 +155,7 @@ function Dashboard() {
                 setItems([...items, response.data]);
             }
 
-            setNewItem({ name: '', sku: '', category: '', quantity: 0, description: '', image: null });
+            setNewItem({ name: '', sku: '', category: '', quantity: 0, price: '', description: '', image: null });
             const fileInput = document.getElementById('image-upload');
             if (fileInput) fileInput.value = '';
 
@@ -180,34 +176,27 @@ function Dashboard() {
         }
     };
 
-    // --- Data Processing Engine ---
     const processedItems = items.filter(item => {
-        // 1. Search: Name or SKU
         const lowerSearch = searchTerm.toLowerCase();
         const matchesSearch = item.name.toLowerCase().includes(lowerSearch) || 
                             item.sku.toLowerCase().includes(lowerSearch);
-
-        // 2. Quantity Filter
         const min = filterQty.min !== '' ? parseInt(filterQty.min) : 0;
         const max = filterQty.max !== '' ? parseInt(filterQty.max) : Infinity;
         const matchesQty = item.quantity >= min && item.quantity <= max;
 
-        // 3. Image Filter
         let matchesImage = true;
         if (filterImage === 'yes') matchesImage = !!item.image;
         if (filterImage === 'no') matchesImage = !item.image;
 
-        // 4. Owner Filter
         const matchesOwner = filterOwner === '' || item.owner_email === filterOwner;
 
         return matchesSearch && matchesQty && matchesImage && matchesOwner;
     }).sort((a, b) => {
-        // Sorting Logic
         switch (sortConfig) {
-            case 'quantity': return a.quantity - b.quantity; // Low to High
-            case '-quantity': return b.quantity - a.quantity; // High to Low
-            case 'created_at': return new Date(a.created_at) - new Date(b.created_at); // Oldest first
-            case '-created_at': return new Date(b.created_at) - new Date(a.created_at); // Newest first
+            case 'quantity': return a.quantity - b.quantity; 
+            case '-quantity': return b.quantity - a.quantity; 
+            case 'created_at': return new Date(a.created_at) - new Date(b.created_at); 
+            case '-created_at': return new Date(b.created_at) - new Date(a.created_at); 
             case 'updated_at': return new Date(a.updated_at) - new Date(b.updated_at);
             case '-updated_at': return new Date(b.updated_at) - new Date(a.updated_at);
             default: return 0;
@@ -230,10 +219,8 @@ function Dashboard() {
                 <button onClick={openAddModal} style={{ ...successBtnStyle, marginBottom: '20px' }}>+ Add New Item</button>
             </div>
 
-            {/* --- SEARCH & FILTER CONTROL PANEL --- */}
             <div style={{ backgroundColor: '#f4f4f9', padding: '20px', borderRadius: '8px', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
                 
-                {/* Top Row: Search and Sort */}
                 <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
                     <input 
                         type="text" 
@@ -255,7 +242,6 @@ function Dashboard() {
                     </select>
                 </div>
 
-                {/* Bottom Row: Filters */}
                 <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                         <label>Quantity:</label>
@@ -283,7 +269,6 @@ function Dashboard() {
                         ))}
                     </select>
                     
-                    {/* Reset Filters Button */}
                     <button 
                         onClick={() => { setSearchTerm(''); setSortConfig('-created_at'); setFilterQty({min:'', max:''}); setFilterImage(''); setFilterOwner(''); }}
                         style={{ padding: '8px 15px', backgroundColor: '#e0e0e0', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
@@ -305,7 +290,6 @@ function Dashboard() {
                             <button onClick={() => openDeleteModal(item)} style={deleteBtnStyle}>Delete</button>
                         )}
 
-                        {/* Display the image if it exists */}
                         {item.image && (
                             <img 
                                 src={item.image} 
@@ -316,6 +300,7 @@ function Dashboard() {
                         
                         <h3 style={{ marginTop: 0 }}>{item.name} (SKU: {item.sku})</h3>
                         <p><strong>Category:</strong> {item.category_name || 'None'}</p>
+                        <p><strong>Price:</strong> £{item.price}</p>
                         <p><strong>Quantity:</strong> {item.quantity}</p>
                         <p><strong>Description:</strong> {item.description}</p>
                         <p><strong>Added By:</strong> {item.owner_email || 'No email provided'}</p>
@@ -323,16 +308,14 @@ function Dashboard() {
                 ))}
             </div>
 
-            {/* MODAL OVERLAY */}
             {modalType && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
                     backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center',
                     zIndex: 1000, backdropFilter: 'blur(4px)'
                 }}>
-                    <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '10px', width: '450px', boxShadow: '0 4px 15px rgba(0,0,0,0.3)' }}>
+                    <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '10px', width: '450px', boxShadow: '0 4px 15px rgba(0,0,0,0.3)', maxHeight: '90vh', overflowY: 'auto' }}>
                         
-                        {/* CONTEXT 1: ADD / EDIT FORM */}
                         {modalType === 'form' && (
                             <>
                                 <h3>{editingId ? 'Edit Item' : 'Add New Inventory'}</h3>
@@ -340,6 +323,17 @@ function Dashboard() {
                                     <input type="text" placeholder="Name" value={newItem.name} onChange={(e) => setNewItem({...newItem, name: e.target.value})} required style={modalInputStyle} />
                                     <input type="text" placeholder="SKU" value={newItem.sku} onChange={(e) => setNewItem({...newItem, sku: e.target.value})} required style={modalInputStyle} />
                                     <input type="number" placeholder="Quantity" value={newItem.quantity} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setNewItem({...newItem, quantity: e.target.value.replace(/\D/g, '')})} required style={modalInputStyle} />
+                                    <input 
+                                        type="number" 
+                                        step="0.01" 
+                                        placeholder="Price (£)" 
+                                        value={newItem.price} 
+                                        onChange={(e) => setNewItem({...newItem, price: e.target.value})}
+                                        min="0.01"
+                                        required 
+                                        style={modalInputStyle} 
+                                    />
+
                                     <textarea placeholder="Description" value={newItem.description} onChange={(e) => setNewItem({...newItem, description: e.target.value})} style={modalInputStyle} />
                                     <select value={newItem.category} onChange={(e) => setNewItem({...newItem, category: e.target.value})} style={modalInputStyle}>
                                         <option value="">Select a Category</option>
@@ -355,7 +349,6 @@ function Dashboard() {
                             </>
                         )}
 
-                        {/* CONTEXT 2: VIEW ITEM + AUDIT HISTORY */}
                         {modalType === 'view' && (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                                 <h3>View Item</h3>
@@ -367,6 +360,8 @@ function Dashboard() {
                                         <p><strong>Name:</strong> {viewingItem?.name}</p>
                                         <p><strong>SKU:</strong> {viewingItem?.sku}</p>
                                         <p><strong>Category:</strong> {viewingItem?.category_name || 'None'}</p>
+                                        {/* NEW: Viewing Price */}
+                                        <p><strong>Price:</strong> £{viewingItem?.price}</p>
                                         <p><strong>Quantity:</strong> {viewingItem?.quantity}</p>
                                         <p><strong>Description:</strong> {viewingItem?.description || '—'}</p>
                                         <p><strong>Added By:</strong> {viewingItem?.owner_email || '—'}</p>
@@ -408,7 +403,6 @@ function Dashboard() {
                             </div>
                         )}
 
-                        {/* CONTEXT 3: DELETE CONFIRMATION */}
                         {modalType === 'delete' && (
                             <div style={{ textAlign: 'center' }}>
                                 <h2 style={{ color: '#ff4d4d' }}>Delete Item?</h2>
