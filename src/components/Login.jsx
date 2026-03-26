@@ -56,6 +56,7 @@ function Login() {
                     onChange={(e) => setPassword(e.target.value)} 
                     required 
                 />
+                <Link to="/forgot-password">Forgot Password?</Link>
                 <button type="submit" disabled={isLoading} style={{
                     padding: '12px',
                     backgroundColor: '#2196F3',
