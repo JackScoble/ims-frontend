@@ -6,6 +6,7 @@ import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Analytics from './pages/Analytics';
 import AuditLog from './pages/AuditLog';
+import Profile from './pages/Profile';
 
 // A simple wrapper to protect routes
 const ProtectedRoute = ({ children }) => {
@@ -33,6 +34,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/audit" element={<AuditLog />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
         
         {/* Catch-all: Redirect to dashboard if logged in, else login */}
