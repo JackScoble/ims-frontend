@@ -33,6 +33,7 @@ const Layout = () => {
         <NavLink to="/dashboard" style={({isActive}) => ({ textDecoration: 'none', color: isActive ? '#8884d8' : '#333', fontWeight: isActive ? 'bold' : 'normal' })}>Dashboard</NavLink>
         <NavLink to="/analytics" style={({isActive}) => ({ textDecoration: 'none', color: isActive ? '#8884d8' : '#333', fontWeight: isActive ? 'bold' : 'normal' })}>Analytics</NavLink>
         <NavLink to="/audit" style={({isActive}) => ({ textDecoration: 'none', color: isActive ? '#8884d8' : '#333', fontWeight: isActive ? 'bold' : 'normal' })}>System Logs</NavLink>
+        <NavLink to="/process-order" style={({isActive}) => ({ textDecoration: 'none', color: isActive ? '#8884d8' : '#333', fontWeight: isActive ? 'bold' : 'normal' })}>Process Order</NavLink>
         
         {/* Spacer to push the bottom elements down */}
         <div style={{ flexGrow: 1 }}></div>
