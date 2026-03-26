@@ -9,6 +9,7 @@ import AuditLog from './pages/AuditLog';
 import Profile from './pages/Profile';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import ProcessOrder from './pages/ProcessOrder';
 
 // A simple wrapper to protect routes
 const ProtectedRoute = ({ children }) => {
@@ -39,6 +40,7 @@ function App() {
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/audit" element={<AuditLog />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/process-order" element={<ProcessOrder />} />
         </Route>
         
         {/* Catch-all: Redirect to dashboard if logged in, else login */}
