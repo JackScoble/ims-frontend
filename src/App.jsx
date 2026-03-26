@@ -7,6 +7,8 @@ import Dashboard from './pages/Dashboard';
 import Analytics from './pages/Analytics';
 import AuditLog from './pages/AuditLog';
 import Profile from './pages/Profile';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 // A simple wrapper to protect routes
 const ProtectedRoute = ({ children }) => {
@@ -22,6 +24,8 @@ function App() {
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         
         {/* Protected Routes wrapped in Layout */}
         <Route 
