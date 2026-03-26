@@ -22,16 +22,18 @@ function Dashboard() {
     const navigate = useNavigate();
 
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortConfig, setSortConfig] = useState('-created_at'); 
+    const [sortConfig, setSortConfig] = '-created_at'; 
     const [filterQty, setFilterQty] = useState({ min: '', max: '' });
     const [filterImage, setFilterImage] = useState(''); 
     const [filterOwner, setFilterOwner] = useState('');
+    const [filterLowStock, setFilterLowStock] = useState('');
 
     const [newItem, setNewItem] = useState({
         name: '',
         sku: '',
         category: '',
         quantity: 0,
+        low_stock_threshold: 0,
         price: '', 
         description: '',
         image: null
@@ -75,7 +77,7 @@ function Dashboard() {
 
     const openAddModal = () => {
         setEditingId(null);
-        setNewItem({ name: '', sku: '', category: '', quantity: 0, price: '', description: '', image: null });
+        setNewItem({ name: '', sku: '', category: '', quantity: 0, low_stock_threshold: 0, price: '', description: '', image: null });
         setModalType('form');
     };
 
@@ -86,6 +88,7 @@ function Dashboard() {
             sku: item.sku,
             category: item.category || '',
             quantity: item.quantity,
+            low_stock_threshold: item.low_stock_threshold || 0,
             price: item.price || '', 
             description: item.description,
             image: null 
@@ -137,6 +140,7 @@ function Dashboard() {
             formData.append('name', newItem.name);
             formData.append('sku', newItem.sku);
             formData.append('quantity', newItem.quantity);
+            formData.append('low_stock_threshold', newItem.low_stock_threshold);
             formData.append('price', newItem.price); 
             formData.append('description', newItem.description);
             if (newItem.category) formData.append('category', newItem.category);
@@ -155,7 +159,7 @@ function Dashboard() {
                 setItems([...items, response.data]);
             }
 
-            setNewItem({ name: '', sku: '', category: '', quantity: 0, price: '', description: '', image: null });
+            setNewItem({ name: '', sku: '', category: '', quantity: 0, low_stock_threshold: 5, price: '', description: '', image: null });
             const fileInput = document.getElementById('image-upload');
             if (fileInput) fileInput.value = '';
 
@@ -190,7 +194,11 @@ function Dashboard() {
 
         const matchesOwner = filterOwner === '' || item.owner_email === filterOwner;
 
-        return matchesSearch && matchesQty && matchesImage && matchesOwner;
+        let matchesLowStock = true;
+        if (filterLowStock === 'yes') matchesLowStock = item.quantity <= (item.low_stock_threshold || 0);
+        if (filterLowStock === 'no') matchesLowStock = item.quantity > (item.low_stock_threshold || 0);
+
+        return matchesSearch && matchesQty && matchesImage && matchesOwner && matchesLowStock;
     }).sort((a, b) => {
         switch (sortConfig) {
             case 'quantity': return a.quantity - b.quantity; 
@@ -244,10 +252,10 @@ function Dashboard() {
 
                 <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <label>Quantity:</label>
-                        <input type="number" placeholder="Min" value={filterQty.min} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setFilterQty({...filterQty, min: e.target.value.replace(/\D/g, '')})} style={{ width: '70px', padding: '8px' }} min="0"/>
+                        <label>Qty:</label>
+                        <input type="number" placeholder="Min" value={filterQty.min} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setFilterQty({...filterQty, min: e.target.value.replace(/\D/g, '')})} style={{ width: '60px', padding: '8px' }} min="0"/>
                         <span>-</span>
-                        <input type="number" placeholder="Max" value={filterQty.max} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setFilterQty({...filterQty, max: e.target.value.replace(/\D/g, '')})} style={{ width: '70px', padding: '8px' }} min={filterQty.min || 0}/>
+                        <input type="number" placeholder="Max" value={filterQty.max} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setFilterQty({...filterQty, max: e.target.value.replace(/\D/g, '')})} style={{ width: '60px', padding: '8px' }} min={filterQty.min || 0}/>
                     </div>
 
                     <select value={filterImage} onChange={(e) => setFilterImage(e.target.value)} style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }}>
@@ -256,10 +264,16 @@ function Dashboard() {
                         <option value="no">No Image</option>
                     </select>
 
+                    <select value={filterLowStock} onChange={(e) => setFilterLowStock(e.target.value)} style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }}>
+                        <option value="">Low Stock: All</option>
+                        <option value="yes">Low Stock Only</option>
+                        <option value="no">Healthy Stock</option>
+                    </select>
+
                     <select 
                         value={filterOwner} 
                         onChange={(e) => setFilterOwner(e.target.value)} 
-                        style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc', width: '200px' }}
+                        style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc', width: '180px' }}
                     >
                         <option value="">All Owners</option>
                         {uniqueOwners.map(email => (
@@ -270,7 +284,7 @@ function Dashboard() {
                     </select>
                     
                     <button 
-                        onClick={() => { setSearchTerm(''); setSortConfig('-created_at'); setFilterQty({min:'', max:''}); setFilterImage(''); setFilterOwner(''); }}
+                        onClick={() => { setSearchTerm(''); setSortConfig('-created_at'); setFilterQty({min:'', max:''}); setFilterImage(''); setFilterOwner(''); setFilterLowStock(''); }}
                         style={{ padding: '8px 15px', backgroundColor: '#e0e0e0', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
                     >
                         Clear Filters
@@ -281,31 +295,50 @@ function Dashboard() {
             <div style={{ display: 'grid', gap: '15px' }}>
                 {processedItems.length === 0 ? <p>No items found.</p> : null}
                 
-                {processedItems.map(item => (
-                    <div key={item.id} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
-                        
-                        <button onClick={() => openViewModal(item)} style={{ marginRight: '10px', backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}>View</button>
-                        <button onClick={() => openEditModal(item)} style={{ marginRight: '10px', backgroundColor: '#2196F3', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}>Edit</button>
-                        {item.owner_email === currentUserEmail && (
-                            <button onClick={() => openDeleteModal(item)} style={deleteBtnStyle}>Delete</button>
-                        )}
+                {processedItems.map(item => {
+                    const threshold = item.low_stock_threshold || 0;
+                    const isLowStock = item.quantity <= threshold;
 
-                        {item.image && (
-                            <img 
-                                src={item.image} 
-                                alt={item.name} 
-                                style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '5px', marginBottom: '10px' }} 
-                            />
-                        )}
-                        
-                        <h3 style={{ marginTop: 0 }}>{item.name} (SKU: {item.sku})</h3>
-                        <p><strong>Category:</strong> {item.category_name || 'None'}</p>
-                        <p><strong>Price:</strong> £{item.price}</p>
-                        <p><strong>Quantity:</strong> {item.quantity}</p>
-                        <p><strong>Description:</strong> {item.description}</p>
-                        <p><strong>Added By:</strong> {item.owner_email || 'No email provided'}</p>
-                    </div>
-                ))}
+                    return (
+                        <div key={item.id} style={{ 
+                            border: isLowStock ? '1px solid #d73a49' : '1px solid #ccc', // Red border if low stock
+                            backgroundColor: isLowStock ? '#ffeef0' : '#fff', // Light red background if low stock
+                            padding: '15px', 
+                            borderRadius: '5px' 
+                        }}>
+                            
+                            <button onClick={() => openViewModal(item)} style={{ marginRight: '10px', backgroundColor: '#6c757d', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}>View</button>
+                            <button onClick={() => openEditModal(item)} style={{ marginRight: '10px', backgroundColor: '#2196F3', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}>Edit</button>
+                            {item.owner_email === currentUserEmail && (
+                                <button onClick={() => openDeleteModal(item)} style={deleteBtnStyle}>Delete</button>
+                            )}
+
+                            {item.image && (
+                                <img 
+                                    src={item.image} 
+                                    alt={item.name} 
+                                    style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '5px', marginBottom: '10px', marginTop: '10px' }} 
+                                />
+                            )}
+                            
+                            <h3 style={{ marginTop: '10px' }}>{item.name} (SKU: {item.sku})</h3>
+                            <p><strong>Category:</strong> {item.category_name || 'None'}</p>
+                            <p><strong>Price:</strong> £{item.price}</p>
+
+                            <p style={{ 
+                                color: isLowStock ? '#d73a49' : '#333', 
+                                fontWeight: isLowStock ? 'bold' : 'normal',
+                                fontSize: isLowStock ? '16px' : '14px'
+                            }}>
+                                <strong>Quantity:</strong> {item.quantity} 
+                                {isLowStock && <span style={{ marginLeft: '10px' }}>⚠️ Low Stock Warning! (Threshold: {threshold})</span>}
+                            </p>
+                            
+                            <p><strong>Description:</strong> {item.description}</p>
+                            <p><strong>Added By:</strong> {item.owner_email || 'No email provided'}</p>
+                        </div>
+                    );
+                })}
             </div>
 
             {modalType && (
@@ -322,7 +355,18 @@ function Dashboard() {
                                 <form onSubmit={(e) => { handleSubmit(e); closeModal(); }} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                                     <input type="text" placeholder="Name" value={newItem.name} onChange={(e) => setNewItem({...newItem, name: e.target.value})} required style={modalInputStyle} />
                                     <input type="text" placeholder="SKU" value={newItem.sku} onChange={(e) => setNewItem({...newItem, sku: e.target.value})} required style={modalInputStyle} />
-                                    <input type="number" placeholder="Quantity" value={newItem.quantity} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setNewItem({...newItem, quantity: e.target.value.replace(/\D/g, '')})} required style={modalInputStyle} />
+                                    
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <div style={{ flex: 1 }}>
+                                            <label style={{ fontSize: '12px', fontWeight: 'bold' }}>Current Qty</label>
+                                            <input type="number" placeholder="Quantity" value={newItem.quantity} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setNewItem({...newItem, quantity: e.target.value.replace(/\D/g, '')})} required style={{...modalInputStyle, width: '100%', boxSizing: 'border-box'}} />
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <label style={{ fontSize: '12px', fontWeight: 'bold' }}>Alert Threshold</label>
+                                            <input type="number" placeholder="Alert Threshold" value={newItem.low_stock_threshold} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setNewItem({...newItem, low_stock_threshold: e.target.value.replace(/\D/g, '')})} required style={{...modalInputStyle, width: '100%', boxSizing: 'border-box'}} />
+                                        </div>
+                                    </div>
+
                                     <input 
                                         type="number" 
                                         step="0.01" 
@@ -367,6 +411,7 @@ function Dashboard() {
                                         <p><strong>Category:</strong> {viewingItem?.category_name || 'None'}</p>
                                         <p><strong>Price:</strong> £{viewingItem?.price}</p>
                                         <p><strong>Quantity:</strong> {viewingItem?.quantity}</p>
+                                        <p><strong>Alert Threshold:</strong> {viewingItem?.low_stock_threshold}</p>
                                         <p><strong>Description:</strong> {viewingItem?.description || '—'}</p>
                                         <p><strong>Added By:</strong> {viewingItem?.owner_email || '—'}</p>
                                     </div>
