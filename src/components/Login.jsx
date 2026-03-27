@@ -14,14 +14,12 @@ function Login() {
         e.preventDefault();
         setIsLoading(true);
 
-        // Create a promise that resolves after 1 second
         const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
         try {
-            // Run the API call and the delay at the same time
             const [response] = await Promise.all([
                 api.post('token/', { username: email, password }),
-                delay(1000) // Ensure the spinner shows for at least 1s
+                delay(1000)
             ]);
 
             localStorage.setItem('access_token', response.data.access);

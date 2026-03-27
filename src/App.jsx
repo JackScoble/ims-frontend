@@ -11,7 +11,6 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import ProcessOrder from './pages/ProcessOrder';
 
-// A simple wrapper to protect routes
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('access_token');
   return token ? children : <Navigate to="/login" />;

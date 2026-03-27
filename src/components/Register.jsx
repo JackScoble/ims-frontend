@@ -14,7 +14,6 @@ function Register() {
     const handleRegister = async (e) => {
         e.preventDefault();
         
-        // 1. Check passwords BEFORE starting the loader
         if (password !== confirmPassword) {
             return toast.error("Passwords do not match"); 
         }
@@ -23,23 +22,20 @@ function Register() {
         const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
         try {
-            // 2. Use Promise.all to run the API and the 1s timer together
             await Promise.all([
                 api.post('register/', {
                     email: email,
                     password: password
                 }),
-                delay(1000) // This ensures the spinner is seen for at least 1s
+                delay(1000)
             ]);
 
             toast.success('Account created! Please log in.');
             navigate('/login');
         } catch (err) {
-            // 3. Handle specific backend errors (e.g., email already exists)
             const errorMessage = err.response?.data?.email?.[0] || 'Registration failed.';
             toast.error(errorMessage);
         } finally {
-            // 4. Always turn off the spinner
             setIsLoading(false);
         }
     };
@@ -78,7 +74,7 @@ function Register() {
                     borderRadius: '5px',
                     cursor: 'pointer',
                     fontSize: '16px',
-                    display: 'flex',            // Keep items centered
+                    display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}>

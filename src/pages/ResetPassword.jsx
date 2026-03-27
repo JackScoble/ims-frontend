@@ -6,7 +6,6 @@ const ResetPassword = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
-  // Extract the token from the URL automatically
   const token = searchParams.get('token'); 
   
   const [password, setPassword] = useState('');
@@ -25,7 +24,6 @@ const ResetPassword = () => {
     }
 
     try {
-      // Send the token and the new password to the confirm endpoint
       await api.post('password_reset/confirm/', {
         token: token,
         password: password
