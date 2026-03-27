@@ -25,36 +25,77 @@ const ForgotPassword = () => {
     }
   };
 
-  return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f0f2f5' }}>
-      <div style={{ padding: '40px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px' }}>
-        <h2 style={{ textAlign: 'center', color: '#333', marginBottom: '20px' }}>Reset Password</h2>
-        
-        {message && <p style={{ color: 'green', backgroundColor: '#e6fffa', padding: '10px', borderRadius: '4px', fontSize: '14px' }}>{message}</p>}
-        {error && <p style={{ color: 'red', backgroundColor: '#ffebee', padding: '10px', borderRadius: '4px', fontSize: '14px' }}>{error}</p>}
+  // Shared input style matching the Login and Register pages
+  const inputClass = "w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8884d8] focus:border-[#8884d8] block p-2.5 transition-colors";
+  const labelClass = "block text-sm font-semibold text-gray-700 mb-1.5 uppercase tracking-wide";
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', fontWeight: 'bold', color: '#555' }}>
-            Email Address
+  return (
+    // Full screen background centered flex container
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
+      
+      {/* Forgot Password Card */}
+      <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+        
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Reset Password</h2>
+          <p className="text-sm text-gray-500 mt-2">Enter your email and we'll send you a link to get back into your account.</p>
+        </div>
+        
+        {/* Styled Alert Messages */}
+        {message && (
+            <div className="mb-5 p-3 bg-green-50 text-green-700 text-sm font-medium rounded-lg border border-green-200">
+                {message}
+            </div>
+        )}
+        {error && (
+            <div className="mb-5 p-3 bg-red-50 text-red-700 text-sm font-medium rounded-lg border border-red-200">
+                {error}
+            </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          
+          {/* Email Input */}
+          <div>
+            <label className={labelClass}>Email Address</label>
             <input 
               type="email" 
               value={email} 
               onChange={(e) => setEmail(e.target.value)} 
               required 
-              placeholder="Enter your registered email"
-              style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }} 
+              placeholder="you@company.com"
+              className={inputClass}
             />
-          </label>
+          </div>
+
+          {/* Submit Button */}
           <button 
             type="submit" 
             disabled={isLoading}
-            style={{ padding: '12px', backgroundColor: '#8884d8', color: '#fff', border: 'none', borderRadius: '4px', cursor: isLoading ? 'not-allowed' : 'pointer', fontWeight: 'bold', marginTop: '10px' }}
+            className="w-full mt-2 flex justify-center items-center py-3 px-4 rounded-lg shadow-sm text-sm font-bold text-white bg-[#8884d8] hover:bg-[#706ac9] focus:outline-none focus:ring-4 focus:ring-[#8884d8]/50 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
           >
-            {isLoading ? 'Sending...' : 'Send Reset Link'}
+            {isLoading ? (
+                <>
+                    {/* Tailwind animated SVG Spinner */}
+                    <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Sending Link...
+                </>
+            ) : (
+                'Send Reset Link'
+            )}
           </button>
         </form>
-        <div style={{ marginTop: '20px', textAlign: 'center' }}>
-          <Link to="/login" style={{ color: '#8884d8', textDecoration: 'none', fontSize: '14px' }}>Back to Login</Link>
+
+        {/* Footer Link */}
+        <div className="mt-8 text-center text-sm">
+          <Link to="/login" className="font-bold text-[#8884d8] hover:text-[#706ac9] hover:underline transition-colors flex items-center justify-center gap-1">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back to Login
+          </Link>
         </div>
       </div>
     </div>
