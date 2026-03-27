@@ -24,46 +24,69 @@ const Layout = () => {
     navigate('/login');
   };
 
+  // Helper function to handle active state styling for NavLinks
+  const navLinkClasses = ({ isActive }) =>
+    `px-3 py-2 rounded-md transition-colors font-medium ${
+      isActive
+        ? 'bg-[#8884d8]/10 text-[#8884d8]'
+        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+    }`;
+
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      
       {/* Sidebar Navigation */}
-      <nav style={{ width: '240px', background: '#fff', padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px', borderRight: '1px solid #ddd' }}>
-        <h2 style={{ color: '#8884d8', marginBottom: '20px' }}>IMS Pro</h2>
+      <nav className="w-64 bg-white p-5 flex flex-col border-r border-gray-200 shadow-sm">
         
-        <NavLink to="/dashboard" style={({isActive}) => ({ textDecoration: 'none', color: isActive ? '#8884d8' : '#333', fontWeight: isActive ? 'bold' : 'normal' })}>Dashboard</NavLink>
-        <NavLink to="/analytics" style={({isActive}) => ({ textDecoration: 'none', color: isActive ? '#8884d8' : '#333', fontWeight: isActive ? 'bold' : 'normal' })}>Analytics</NavLink>
-        <NavLink to="/audit" style={({isActive}) => ({ textDecoration: 'none', color: isActive ? '#8884d8' : '#333', fontWeight: isActive ? 'bold' : 'normal' })}>System Logs</NavLink>
-        <NavLink to="/process-order" style={({isActive}) => ({ textDecoration: 'none', color: isActive ? '#8884d8' : '#333', fontWeight: isActive ? 'bold' : 'normal' })}>Process Order</NavLink>
+        <div className="mb-8 px-3">
+            <h2 className="text-2xl font-bold text-[#8884d8]">IMS Pro</h2>
+        </div>
+        
+        <div className="flex flex-col gap-2">
+            <NavLink to="/dashboard" className={navLinkClasses}>Dashboard</NavLink>
+            <NavLink to="/analytics" className={navLinkClasses}>Analytics</NavLink>
+            <NavLink to="/audit" className={navLinkClasses}>System Logs</NavLink>
+            <NavLink to="/process-order" className={navLinkClasses}>Process Order</NavLink>
+        </div>
         
         {/* Spacer to push the bottom elements down */}
-        <div style={{ flexGrow: 1 }}></div>
+        <div className="flex-grow"></div>
 
-        {/* NEW: Profile Widget inside the sidebar */}
-        <NavLink to="/profile" style={{ textDecoration: 'none', color: '#333', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
-          <div style={{ width: '35px', height: '35px', borderRadius: '50%', backgroundColor: '#ccc', overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        {/* Profile Widget */}
+        <NavLink 
+            to="/profile" 
+            className="flex items-center gap-3 p-3 mb-3 bg-gray-50 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors"
+        >
+          <div className="w-10 h-10 rounded-full bg-gray-300 overflow-hidden flex justify-center items-center flex-shrink-0">
             {profile?.profile?.profile_image ? (
-              <img src={profile.profile.profile_image} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={profile.profile.profile_image} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
-              <span style={{ color: '#fff', fontWeight: 'bold' }}>
+              <span className="text-white font-bold text-lg">
                 {profile?.username ? profile.username.charAt(0).toUpperCase() : 'U'}
               </span>
             )}
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontWeight: 'bold', fontSize: '14px' }}>{profile?.first_name || profile?.username || 'User'}</span>
-            <span style={{ fontSize: '12px', color: '#777' }}>View Profile</span>
+          <div className="flex flex-col overflow-hidden">
+            <span className="font-semibold text-sm text-gray-800 truncate">
+                {profile?.first_name || profile?.username || 'User'}
+            </span>
+            <span className="text-xs text-gray-500">View Profile</span>
           </div>
         </NavLink>
 
-        <button onClick={handleLogout} style={{ padding: '10px', cursor: 'pointer', backgroundColor: '#ff4d4f', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>
+        <button 
+            onClick={handleLogout} 
+            className="w-full py-2.5 px-4 bg-red-50 text-red-600 hover:bg-red-500 hover:text-white rounded-md font-semibold transition-colors border border-red-100 hover:border-red-500"
+        >
           Logout
         </button>
       </nav>
 
       {/* Main Content Area */}
-      <main style={{ flexGrow: 1, padding: '30px', overflowY: 'auto' }}>
+      <main className="flex-grow p-8 overflow-y-auto">
         <Outlet /> 
       </main>
+      
     </div>
   );
 };
