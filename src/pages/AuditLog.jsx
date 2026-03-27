@@ -27,19 +27,19 @@ const AuditLog = () => {
   };
 
   const processedLogs = logs.filter(log => {
-    // 1. Search Logic (checks user, item name, and description)
+    // 1. Search Logic
     const matchesSearch = (
       log.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       log.object_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       log.description?.toLowerCase().includes(searchTerm.toLowerCase())
     );
     
-    // 2. Filter Logic (checks action type)
+    // 2. Filter Logic
     const matchesAction = filterAction === 'ALL' || log.action === filterAction;
     
     return matchesSearch && matchesAction;
   }).sort((a, b) => {
-    // 3. Sort Logic (compares timestamps)
+    // 3. Sort Logic
     const dateA = new Date(a.timestamp);
     const dateB = new Date(b.timestamp);
     return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;

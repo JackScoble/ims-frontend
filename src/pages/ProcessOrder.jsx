@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import api from '../api/axios'; // Make sure this path is correct for your project structure
+import api from '../api/axios';
 
 const ProcessOrder = () => {
   const [items, setItems] = useState([]);
   const [formData, setFormData] = useState({ item: '', quantity_ordered: 1 });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch available items when the page loads
   useEffect(() => {
     fetchInventory();
   }, []);
@@ -31,21 +30,17 @@ const ProcessOrder = () => {
     setIsSubmitting(true);
 
     try {
-      // Using your custom axios instance just like the Dashboard
       await api.post('orders/', {
         item: formData.item,
         quantity_ordered: parseInt(formData.quantity_ordered)
       });
 
-      // Success!
       toast.success('Order processed successfully! Stock has been deducted.');
-      setFormData({ item: '', quantity_ordered: 1 }); // Reset the form
+      setFormData({ item: '', quantity_ordered: 1 });
       
-      // Refresh the inventory dropdown so it shows the new deducted stock numbers immediately
       fetchInventory(); 
       
     } catch (error) {
-      // Handle Django's validation errors (like "Not enough stock!") using Axios error structure
       if (error.response && error.response.data) {
         const data = error.response.data;
         const errorMsg = data.quantity_ordered ? data.quantity_ordered[0] : 'Failed to process order.';
