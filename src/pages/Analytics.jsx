@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line
-} from 'recharts';
+
+import KpiCard from '../components/KpiCard';
+import AnalyticsCharts from '../components/AnalyticsCharts';
 
 const Analytics = () => {
   const [items, setItems] = useState([]);
   const [auditCount, setAuditCount] = useState(0);
   const [usersCount, setUsersCount] = useState(0);
   const [historyData, setHistoryData] = useState([]);
+  const [ordersData, setOrdersData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -19,15 +19,12 @@ const Analytics = () => {
 
   const fetchData = async () => {
     try {
-      // 1. Fetch Items
       const itemsRes = await api.get('items/');
       setItems(itemsRes.data);
 
-      // 2. Fetch Audit Logs (just to get the total count)
       const auditRes = await api.get('audit/');
       setAuditCount(auditRes.data.length);
 
-      // 3. Fetch Users safely
       try {
         const usersRes = await api.get('users/'); 
         setUsersCount(usersRes.data.length);
@@ -36,12 +33,18 @@ const Analytics = () => {
         setUsersCount("N/A"); 
       }
 
-      // 4. Fetch Historical Snapshots
       try {
         const historyRes = await api.get('snapshots/');
         setHistoryData(historyRes.data);
       } catch (historyErr) {
         console.error("Failed to fetch history data:", historyErr);
+      }
+
+      try {
+        const ordersRes = await api.get('orders/');
+        setOrdersData(ordersRes.data);
+      } catch (ordersErr) {
+        console.warn("Could not fetch orders. Endpoint might be protected or named differently.");
       }
 
       setLoading(false);
@@ -53,10 +56,9 @@ const Analytics = () => {
   };
 
   // --- DATA PROCESSING FOR CHARTS & KPIS ---
-
-  // KPI Calculations
   const totalUniqueItems = items.length;
-  const totalStockQuantity = items.reduce((sum, item) => sum + item.quantity, 0); 
+  const totalStockQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalOrders = ordersData.length;
 
   const totalStockValue = items.reduce((sum, item) => {
     const itemPrice = parseFloat(item.price) || 0;
@@ -65,13 +67,11 @@ const Analytics = () => {
   
   const formattedStockValue = `£${totalStockValue.toFixed(2)}`;
 
-  // Format data for the Bar Chart
   const stockData = items.map(item => ({
     name: item.name,
     quantity: item.quantity
   }));
 
-  // Format data for the Pie Chart
   const categoryCount = items.reduce((acc, item) => {
     const catName = item.category_name || `Category ${item.category}`; 
     acc[catName] = (acc[catName] || 0) + 1;
@@ -83,7 +83,6 @@ const Analytics = () => {
     value: categoryCount[key]
   }));
 
-  // Format dynamic historical data
   const dynamicChartData = historyData.map(snap => {
     const dateObj = new Date(snap.date);
     const formattedDate = dateObj.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' });
@@ -93,19 +92,6 @@ const Analytics = () => {
       value: parseFloat(snap.total_value) || 0
     };
   });
-
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
-
-  // --- STYLING HELPERS ---
-  const cardStyle = {
-    flex: '1 1 200px',
-    backgroundColor: '#fff',
-    padding: '20px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    textAlign: 'center',
-    minWidth: 0
-  };
 
   if (loading) return <div style={{ padding: '20px' }}>Loading analytics...</div>;
   if (error) return <div style={{ padding: '20px', color: 'red' }}>{error}</div>;
@@ -117,102 +103,21 @@ const Analytics = () => {
 
       {/* --- KPI SUMMARY CARDS --- */}
       <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', flexWrap: 'wrap' }}>
-        <div style={cardStyle}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>Total Users</h4>
-          <h1 style={{ margin: 0, color: '#0088FE', fontSize: '2.5rem' }}>{usersCount}</h1>
-        </div>
-        
-        <div style={cardStyle}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>Unique Items</h4>
-          <h1 style={{ margin: 0, color: '#00C49F', fontSize: '2.5rem' }}>{totalUniqueItems}</h1>
-        </div>
-        
-        <div style={cardStyle}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>Total Stock Quantity</h4>
-          <h1 style={{ margin: 0, color: '#FFBB28', fontSize: '2.5rem' }}>{totalStockQuantity}</h1>
-        </div>
-
-        <div style={cardStyle}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>Total Stock Value</h4>
-          <h1 style={{ margin: 0, color: '#8884d8', fontSize: '2.5rem' }}>{formattedStockValue}</h1>
-        </div>
-        
-        <div style={cardStyle}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#555' }}>Total Actions Logged</h4>
-          <h1 style={{ margin: 0, color: '#FF8042', fontSize: '2.5rem' }}>{auditCount}</h1>
-        </div>
+        <KpiCard title="Total Users" value={usersCount} color="#0088FE" />
+        <KpiCard title="Unique Items" value={totalUniqueItems} color="#00C49F" />
+        <KpiCard title="Total Stock Quantity" value={totalStockQuantity} color="#FFBB28" />
+        <KpiCard title="Total Stock Value" value={formattedStockValue} color="#8884d8" />
+        <KpiCard title="Total Orders" value={totalOrders} color="#82ca9d" />
+        <KpiCard title="Total Actions Logged" value={auditCount} color="#FF8042" />
       </div>
 
       {/* --- CHARTS SECTION --- */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '40px' }}>
-        
-        {/* LINE CHART : Daily Stock Snapshot */}
-        <div style={{ flex: '1 1 100%', backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', minWidth: 0 }}>
-          <h3 style={{ textAlign: 'center', marginBottom: '20px', color: '#333' }}>Total Stock Value Over Time</h3>
-          <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={dynamicChartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis 
-                tickFormatter={(value) => `£${value}`} 
-                width={80}
-              />
-              <Tooltip 
-                formatter={(value) => [`£${value.toFixed(2)}`, 'Total Value']} 
-              />
-              <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="value" 
-                stroke="#8884d8"
-                strokeWidth={3}
-                name="Stock Value (£)"
-                activeDot={{ r: 8 }} 
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-        
-        {/* BAR CHART: Stock Levels */}
-        <div style={{ flex: '1 1 400px', backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', minWidth: 0 }}>
-          <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Stock Levels by Item</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={stockData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="quantity" fill="#8884d8" name="Quantity in Stock" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      <AnalyticsCharts 
+        dynamicChartData={dynamicChartData} 
+        stockData={stockData} 
+        pieData={pieData} 
+      />
 
-        {/* PIE CHART: Category Distribution */}
-        <div style={{ flex: '1 1 300px', backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', minWidth: 0 }}>
-          <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Items by Category</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-
-      </div>
     </div>
   );
 };
