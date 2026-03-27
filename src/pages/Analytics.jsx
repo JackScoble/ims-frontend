@@ -67,9 +67,16 @@ const Analytics = () => {
   
   const formattedStockValue = `£${totalStockValue.toFixed(2)}`;
 
-  const stockData = items.map(item => ({
-    name: item.name,
-    quantity: item.quantity
+  // Sum up quantities for each category
+  const categoryStockMap = items.reduce((acc, item) => {
+      const catName = item.category_name || `Category ${item.category}`;
+      acc[catName] = (acc[catName] || 0) + item.quantity;
+      return acc;
+  }, {});
+
+  const categoryStockData = Object.keys(categoryStockMap).map(key => ({
+      name: key,
+      quantity: categoryStockMap[key]
   }));
 
   const categoryCount = items.reduce((acc, item) => {
@@ -93,30 +100,61 @@ const Analytics = () => {
     };
   });
 
-  if (loading) return <div style={{ padding: '20px' }}>Loading analytics...</div>;
-  if (error) return <div style={{ padding: '20px', color: 'red' }}>{error}</div>;
+  // --- UI RENDERING ---
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh]">
+        <svg className="animate-spin h-8 w-8 text-[#8884d8] mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p className="text-gray-500 font-medium animate-pulse">Gathering your analytics...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto mt-2">
+        <div className="p-4 bg-red-50 text-red-700 font-medium rounded-lg border border-red-200 flex items-center gap-3 max-w-2xl">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          {error}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Inventory Analytics</h2>
-      <p style={{ color: '#666', marginBottom: '20px' }}>Real-time data visualization and system metrics.</p>
-
-      {/* --- KPI SUMMARY CARDS --- */}
-      <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', flexWrap: 'wrap' }}>
-        <KpiCard title="Total Users" value={usersCount} color="#0088FE" />
-        <KpiCard title="Unique Items" value={totalUniqueItems} color="#00C49F" />
-        <KpiCard title="Total Stock Quantity" value={totalStockQuantity} color="#FFBB28" />
-        <KpiCard title="Total Stock Value" value={formattedStockValue} color="#8884d8" />
-        <KpiCard title="Total Orders" value={totalOrders} color="#82ca9d" />
-        <KpiCard title="Total Actions Logged" value={auditCount} color="#FF8042" />
+    /* EXACT match to Dashboard wrapper: <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto"> */
+    <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto">
+      
+      {/* Page Header - EXACT match to Dashboard and Process Orders */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-2">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-800 tracking-tight">Inventory Analytics</h2>
+          <p className="text-gray-500 text-sm mt-1">Real-time data visualization and system metrics.</p>
+        </div>
       </div>
 
-      {/* --- CHARTS SECTION --- */}
-      <AnalyticsCharts 
-        dynamicChartData={dynamicChartData} 
-        stockData={stockData} 
-        pieData={pieData} 
-      />
+      {/* KPI Grid - Responsive Layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <KpiCard title="Total Users" value={usersCount} color="#0088FE" />
+        <KpiCard title="Unique Items" value={totalUniqueItems} color="#00C49F" />
+        <KpiCard title="Total Stock Qty" value={totalStockQuantity} color="#FFBB28" />
+        <KpiCard title="Total Stock Value" value={formattedStockValue} color="#8884d8" />
+        <KpiCard title="Total Orders" value={totalOrders} color="#82ca9d" />
+        <KpiCard title="Actions Logged" value={auditCount} color="#FF8042" />
+      </div>
+
+      {/* Charts Section */}
+      <div>
+        <AnalyticsCharts 
+          dynamicChartData={dynamicChartData} 
+          categoryStockData={categoryStockData} 
+          pieData={pieData} 
+        />
+      </div>
 
     </div>
   );
