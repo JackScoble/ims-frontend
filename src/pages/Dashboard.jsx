@@ -9,9 +9,6 @@ import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import ItemCard from '../components/ItemCard';
 import DashboardFilterBar from '../components/DashboardFilterBar';
 
-const successBtnStyle = { padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' };
-const deleteBtnStyle = { padding: '10px 20px', backgroundColor: '#ff4d4d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' };
-
 function Dashboard() {
     const [items, setItems] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -35,13 +32,6 @@ function Dashboard() {
     const [newItem, setNewItem] = useState({
         name: '', sku: '', category: '', quantity: 0, low_stock_threshold: 0, price: '', description: '', image: null
     });
-
-    const handleLogout = () => {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        toast('Logged out successfully', { icon: '👋' });
-        setTimeout(() => { window.location.href = '/login'; }, 500);
-    };
 
     useEffect(() => {
         fetchInventory();
@@ -81,7 +71,7 @@ function Dashboard() {
         setNewItem({
             name: item.name, sku: item.sku, category: item.category || '', quantity: item.quantity,
             low_stock_threshold: item.low_stock_threshold || 0, price: item.price || '', 
-            description: item.description, image: null 
+            description: item.description, image: item.image || null 
         });
         setModalType('form');
     };
@@ -206,21 +196,21 @@ function Dashboard() {
     };
 
     return (
-        <div style={{ padding: '20px' }}>
+        <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto">
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2 style={{ margin: 0 }}>Inventory Dashboard</h2>
-                <button onClick={handleLogout} style={{ padding: '10px 15px', backgroundColor: '#ff4d4d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-                    Log Out
+            {/* Header Area */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-2">
+                <h2 className="text-3xl font-bold text-gray-800 tracking-tight">Inventory Dashboard</h2>
+                
+                <button 
+                    onClick={openAddModal} 
+                    className="bg-[#8884d8] hover:bg-[#706ac9] text-white font-medium py-2 px-5 rounded-md transition-colors shadow-sm flex items-center gap-2"
+                >
+                    <span className="text-xl leading-none">+</span> Add New Item
                 </button>
             </div>
 
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-
-            <div style={{ marginBottom: '30px', padding: '15px', border: '1px solid #ddd', borderRadius: '5px', backgroundColor: '#f9f9f9' }}>
-                <button onClick={openAddModal} style={{ ...successBtnStyle, marginBottom: '20px' }}>+ Add New Item</button>
-            </div>
-
+            {/* Filters Component */}
             <DashboardFilterBar 
                 searchTerm={searchTerm} setSearchTerm={setSearchTerm}
                 sortConfig={sortConfig} setSortConfig={setSortConfig}
@@ -232,8 +222,13 @@ function Dashboard() {
                 onClearFilters={handleClearFilters}
             />
             
-            <div style={{ display: 'grid', gap: '15px' }}>
-                {processedItems.length === 0 ? <p>No items found.</p> : null}
+            {/* Items Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {processedItems.length === 0 ? (
+                    <div className="col-span-full py-10 text-center text-gray-500 bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <p className="text-lg">No items found matching your criteria.</p>
+                    </div>
+                ) : null}
                 
                 {processedItems.map(item => (
                     <ItemCard 
@@ -247,6 +242,7 @@ function Dashboard() {
                 ))}
             </div>
 
+            {/* Modals */}
             <ItemFormModal 
                 isOpen={modalType === 'form'} isEditing={!!editingId}
                 newItem={newItem} setNewItem={setNewItem}
