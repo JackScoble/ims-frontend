@@ -1,72 +1,94 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+    PieChart, Pie, Cell, LineChart, Line
 } from 'recharts';
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+const COLORS = ['#8884d8', '#82ca9d', '#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+const chartCardClass = "bg-white p-6 rounded-2xl shadow-sm border border-gray-100 min-w-0";
+const titleClass = "text-lg font-bold text-gray-800 mb-6 text-center tracking-tight";
 
-const chartContainerStyle = { 
-    backgroundColor: '#fff', 
-    padding: '20px', 
-    borderRadius: '8px', 
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)', 
-    minWidth: 0 
-};
+function AnalyticsCharts({ dynamicChartData, categoryStockData, pieData }) {
+    const [isMounted, setIsMounted] = useState(false);
 
-function AnalyticsCharts({ dynamicChartData, stockData, pieData }) {
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    // If no data or not mounted, don't render the charts.
+    if (!isMounted || !dynamicChartData?.length || !categoryStockData?.length) {
+        return (
+            <div className="flex items-center justify-center h-64 w-full text-gray-400 font-medium">
+                Gathering analytics data...
+            </div>
+        );
+    }
+
     return (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '40px' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
-            {/* LINE CHART : Daily Stock Snapshot */}
-            <div style={{ ...chartContainerStyle, flex: '1 1 100%' }}>
-                <h3 style={{ textAlign: 'center', marginBottom: '20px', color: '#333' }}>Total Stock Value Over Time</h3>
-                <ResponsiveContainer width="100%" height={400}>
-                    <LineChart data={dynamicChartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" />
-                        <YAxis tickFormatter={(value) => `£${value}`} width={80} />
-                        <Tooltip formatter={(value) => [`£${value.toFixed(2)}`, 'Total Value']} />
-                        <Legend />
-                        <Line type="monotone" dataKey="value" stroke="#8884d8" strokeWidth={3} name="Stock Value (£)" activeDot={{ r: 8 }} />
-                    </LineChart>
-                </ResponsiveContainer>
+            {/* 1. LINE CHART */}
+            <div className={`${chartCardClass} lg:col-span-2`}>
+                <h3 className={titleClass}>Total Stock Value Over Time</h3>
+                <div className="h-[400px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={dynamicChartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                            <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dy={10} />
+                            <YAxis tickFormatter={(value) => `£${value}`} axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} width={80} />
+                            <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                            <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                            <Line type="monotone" dataKey="value" stroke="#8884d8" strokeWidth={4} dot={{ r: 4 }} name="Stock Value (£)" />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </div>
             </div>
             
-            {/* BAR CHART: Stock Levels */}
-            <div style={{ ...chartContainerStyle, flex: '1 1 400px' }}>
-                <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Stock Levels by Item</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={stockData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="quantity" fill="#8884d8" name="Quantity in Stock" />
-                    </BarChart>
-                </ResponsiveContainer>
+            {/* 2. BAR CHART */}
+            <div className={chartCardClass}>
+                <h3 className={titleClass}>Stock Quantity by Category</h3>
+                <div className="h-[350px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={categoryStockData}>
+                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 11}} dy={10} />
+                             <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} />
+                             <Tooltip cursor={{fill: '#f9fafb'}} contentStyle={{ borderRadius: '12px', border: 'none' }} />
+                             <Bar dataKey="quantity" radius={[6, 6, 0, 0]} barSize={50}>
+                                {categoryStockData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                             </Bar>
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
             </div>
 
-            {/* PIE CHART: Category Distribution */}
-            <div style={{ ...chartContainerStyle, flex: '1 1 300px' }}>
-                <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Items by Category</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                        <Pie
-                            data={pieData} cx="50%" cy="50%" labelLine={false}
-                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                            outerRadius={100} fill="#8884d8" dataKey="value"
-                        >
-                            {pieData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                        </Pie>
-                        <Tooltip />
-                    </PieChart>
-                </ResponsiveContainer>
+            {/* 3. PIE CHART */}
+            <div className={chartCardClass}>
+                <h3 className={titleClass}>Item Variety by Category</h3>
+                <div className="h-[350px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                             <Pie
+                                data={pieData}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={60}
+                                outerRadius={80}
+                                paddingAngle={5}
+                                dataKey="value"
+                             >
+                                {pieData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                             </Pie>
+                             <Tooltip />
+                             <Legend />
+                        </PieChart>
+                    </ResponsiveContainer>
+                </div>
             </div>
-
         </div>
     );
 }
