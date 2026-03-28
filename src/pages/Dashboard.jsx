@@ -124,7 +124,9 @@ function Dashboard() {
             formData.append('price', newItem.price); 
             formData.append('description', newItem.description);
             if (newItem.category) formData.append('category', newItem.category);
-            if (newItem.image) formData.append('image', newItem.image);
+            if (newItem.image instanceof File) {
+                formData.append('image', newItem.image);
+            }
 
             if (editingId) {
                 const response = await api.patch(`items/${editingId}/`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
