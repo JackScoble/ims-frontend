@@ -11,10 +11,10 @@ function DashboardFilterBar({
     onClearFilters
 }) {
     // Shared class for all inputs and selects to keep them uniform
-    const inputStyle = "bg-white border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-[#8884d8] focus:border-[#8884d8] block p-2.5 transition-colors shadow-sm";
+    const inputStyle = "bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 dark:placeholder-gray-400 text-sm rounded-md focus:ring-[#8884d8] focus:border-[#8884d8] block p-2.5 transition-colors shadow-sm";
 
     return (
-        <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm flex flex-col gap-4">
+        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col gap-4 transition-colors">
             
             {/* Top Row: Search and Sort */}
             <div className="flex flex-col md:flex-row gap-4">
@@ -42,28 +42,28 @@ function DashboardFilterBar({
             </div>
 
             {/* Bottom Row: Detailed Filters */}
-            <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-gray-100">
+            <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-gray-100 dark:border-gray-700 transition-colors">
                 
                 {/* Quantity Range */}
-                <div className="flex items-center gap-2 bg-gray-50 p-1.5 rounded-md border border-gray-200 shadow-sm">
-                    <span className="text-sm text-gray-600 font-medium px-2">Qty:</span>
+                <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 p-1.5 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm transition-colors">
+                    <span className="text-sm text-gray-600 dark:text-gray-300 font-medium px-2">Qty:</span>
                     <input 
                         type="number" 
                         placeholder="Min" 
                         value={filterQty.min} 
                         onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} 
                         onChange={(e) => setFilterQty({...filterQty, min: e.target.value.replace(/\D/g, '')})} 
-                        className="w-16 p-1 text-sm border-gray-300 rounded focus:ring-[#8884d8] focus:border-[#8884d8] text-center" 
+                        className="w-16 p-1 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 dark:placeholder-gray-500 border border-gray-300 dark:border-gray-600 rounded focus:ring-[#8884d8] focus:border-[#8884d8] text-center transition-colors" 
                         min="0"
                     />
-                    <span className="text-gray-400">-</span>
+                    <span className="text-gray-400 dark:text-gray-500">-</span>
                     <input 
                         type="number" 
                         placeholder="Max" 
                         value={filterQty.max} 
                         onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} 
                         onChange={(e) => setFilterQty({...filterQty, max: e.target.value.replace(/\D/g, '')})} 
-                        className="w-16 p-1 text-sm border-gray-300 rounded focus:ring-[#8884d8] focus:border-[#8884d8] text-center" 
+                        className="w-16 p-1 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 dark:placeholder-gray-500 border border-gray-300 dark:border-gray-600 rounded focus:ring-[#8884d8] focus:border-[#8884d8] text-center transition-colors" 
                         min={filterQty.min || 0}
                     />
                 </div>
@@ -88,7 +88,7 @@ function DashboardFilterBar({
                 {/* Clear Filters Button */}
                 <button 
                     onClick={onClearFilters}
-                    className="ml-auto px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-md transition-colors border border-gray-300 whitespace-nowrap"
+                    className="ml-auto px-4 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-md transition-colors border border-gray-300 dark:border-gray-600 whitespace-nowrap"
                 >
                     Clear Filters
                 </button>

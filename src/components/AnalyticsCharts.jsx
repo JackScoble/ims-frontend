@@ -5,8 +5,8 @@ import {
 } from 'recharts';
 
 const COLORS = ['#8884d8', '#82ca9d', '#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
-const chartCardClass = "bg-white p-6 rounded-2xl shadow-sm border border-gray-100 min-w-0";
-const titleClass = "text-lg font-bold text-gray-800 mb-6 text-center tracking-tight";
+const chartCardClass = "bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 min-w-0 transition-colors";
+const titleClass = "text-lg font-bold text-gray-800 dark:text-white mb-6 text-center tracking-tight transition-colors";
 
 function AnalyticsCharts({ dynamicChartData, categoryStockData, pieData }) {
     const [isMounted, setIsMounted] = useState(false);
@@ -18,7 +18,7 @@ function AnalyticsCharts({ dynamicChartData, categoryStockData, pieData }) {
     // If no data or not mounted, don't render the charts.
     if (!isMounted || !dynamicChartData?.length || !categoryStockData?.length) {
         return (
-            <div className="flex items-center justify-center h-64 w-full text-gray-400 font-medium">
+            <div className="flex items-center justify-center h-64 w-full text-gray-400 dark:text-gray-500 font-medium transition-colors">
                 Gathering analytics data...
             </div>
         );
@@ -36,7 +36,10 @@ function AnalyticsCharts({ dynamicChartData, categoryStockData, pieData }) {
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                             <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dy={10} />
                             <YAxis tickFormatter={(value) => `£${value}`} axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} width={80} />
-                            <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                            <Tooltip 
+                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} 
+                                labelStyle={{ color: '#374151', fontWeight: '600' }} 
+                            />
                             <Legend wrapperStyle={{ paddingTop: '20px' }} />
                             <Line type="monotone" dataKey="value" stroke="#8884d8" strokeWidth={4} dot={{ r: 4 }} name="Stock Value (£)" />
                         </LineChart>
@@ -53,7 +56,11 @@ function AnalyticsCharts({ dynamicChartData, categoryStockData, pieData }) {
                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 11}} dy={10} />
                              <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} />
-                             <Tooltip cursor={{fill: '#f9fafb'}} contentStyle={{ borderRadius: '12px', border: 'none' }} />
+                             <Tooltip 
+                                cursor={{fill: 'rgba(156, 163, 175, 0.1)'}} 
+                                contentStyle={{ borderRadius: '12px', border: 'none' }} 
+                                labelStyle={{ color: '#374151', fontWeight: '600' }} 
+                             />
                              <Bar dataKey="quantity" radius={[6, 6, 0, 0]} barSize={50}>
                                 {categoryStockData.map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -83,7 +90,10 @@ function AnalyticsCharts({ dynamicChartData, categoryStockData, pieData }) {
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                              </Pie>
-                             <Tooltip />
+                             <Tooltip 
+                                contentStyle={{ borderRadius: '12px', border: 'none' }} 
+                                itemStyle={{ color: '#374151' }} 
+                             />
                              <Legend />
                         </PieChart>
                     </ResponsiveContainer>

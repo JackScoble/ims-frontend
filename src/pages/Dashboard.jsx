@@ -200,7 +200,7 @@ function Dashboard() {
             
             {/* Header Area */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-2">
-                <h2 className="text-3xl font-bold text-gray-800 tracking-tight">Inventory Dashboard</h2>
+                <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 tracking-tight">Inventory Dashboard</h2>
                 
                 <button 
                     onClick={openAddModal} 
@@ -225,7 +225,7 @@ function Dashboard() {
             {/* Items Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {processedItems.length === 0 ? (
-                    <div className="col-span-full py-10 text-center text-gray-500 bg-white border border-gray-200 rounded-lg shadow-sm">
+                    <div className="col-span-full py-10 text-center text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
                         <p className="text-lg">No items found matching your criteria.</p>
                     </div>
                 ) : null}
