@@ -5,6 +5,8 @@ function ItemFormModal({ isOpen, isEditing, newItem, setNewItem, categories, onS
 
     const inputClass = "w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 dark:placeholder-gray-400 text-sm rounded-md focus:ring-[#8884d8] focus:border-[#8884d8] block p-2 transition-colors";
     const labelClass = "block mb-1 text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide";
+    
+    const RequiredAsterisk = () => <span className="text-red-500 dark:text-red-400 ml-1">*</span>;
 
     return (
         <div className="fixed inset-0 bg-gray-900/60 dark:bg-gray-900/80 backdrop-blur-sm flex justify-center items-center z-[1000] p-4 transition-colors">
@@ -24,40 +26,41 @@ function ItemFormModal({ isOpen, isEditing, newItem, setNewItem, categories, onS
                     
                     <div className="flex flex-col sm:flex-row gap-4">
                         <div className="flex-1">
-                            <label className={labelClass}>Name</label>
-                            <input type="text" placeholder="e.g. Claw Hammer" value={newItem.name || ''} onChange={(e) => setNewItem({...newItem, name: e.target.value})} required className={inputClass} />
+                            <label className={labelClass}>Name <RequiredAsterisk /></label>
+                            <input type="text" placeholder="Claw Hammer" value={newItem.name || ''} onChange={(e) => setNewItem({...newItem, name: e.target.value})} required className={inputClass} />
                         </div>
                         <div className="w-full sm:w-1/3">
-                            <label className={labelClass}>SKU</label>
+                            <label className={labelClass}>SKU <RequiredAsterisk /></label>
                             <input type="text" placeholder="TOOL-001" value={newItem.sku || ''} onChange={(e) => setNewItem({...newItem, sku: e.target.value})} required className={inputClass} />
                         </div>
                     </div>
 
                     <div className="flex gap-4">
                         <div className="flex-1">
-                            <label className={labelClass}>Current Qty</label>
-                            <input type="number" placeholder="0" value={newItem.quantity ?? ''} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setNewItem({...newItem, quantity: e.target.value.replace(/\D/g, '')})} required className={inputClass} />
+                            <label className={labelClass}>Current Quantity <RequiredAsterisk /></label>
+                            <input type="number" placeholder="0" value={newItem.quantity || ''} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setNewItem({...newItem, quantity: e.target.value.replace(/\D/g, '')})} max="99999" required className={inputClass} />
                         </div>
                         <div className="flex-1">
-                            <label className={labelClass}>Alert Threshold</label>
-                            <input type="number" placeholder="0" value={newItem.low_stock_threshold ?? ''} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setNewItem({...newItem, low_stock_threshold: e.target.value.replace(/\D/g, '')})} required className={inputClass} />
+                            <label className={labelClass}>Alert Threshold <RequiredAsterisk /></label>
+                            <input type="number" placeholder="0" value={newItem.low_stock_threshold || ''} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setNewItem({...newItem, low_stock_threshold: e.target.value.replace(/\D/g, '')})} max="99999" required className={inputClass} />
                         </div>
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-4">
                         <div className="flex-1">
-                            <label className={labelClass}>Category</label>
+                            <label className={labelClass}>Category <RequiredAsterisk /></label>
                             <select value={newItem.category || ''} onChange={(e) => setNewItem({...newItem, category: e.target.value})} required className={`${inputClass} appearance-none`}>
                                 <option value="">Select a Category</option>
                                 {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                             </select>
                         </div>
                         <div className="w-full sm:w-1/3">
-                            <label className={labelClass}>Price (£)</label>
-                            <input type="number" step="0.01" placeholder="0.00" value={newItem.price || ''} min="0.01" required onChange={(e) => { const val = e.target.value; if (val === '' || /^\d*\.?\d{0,2}$/.test(val)) setNewItem({...newItem, price: val}); }} className={inputClass} />
+                            <label className={labelClass}>Price (£) <RequiredAsterisk /></label>
+                            <input type="number" step="0.01" placeholder="0.00" value={newItem.price || ''} min="0.01" max="99999.99" required onChange={(e) => { const val = e.target.value; if (val === '' || /^\d*\.?\d{0,2}$/.test(val)) setNewItem({...newItem, price: val}); }} className={inputClass} />
                         </div>
                     </div>
 
+                    {/* Not required */}
                     <div>
                         <label className={labelClass}>Description</label>
                         <textarea placeholder="Brief description of the item..." value={newItem.description || ''} onChange={(e) => setNewItem({...newItem, description: e.target.value})} className={`${inputClass} min-h-[60px] resize-y`} />
