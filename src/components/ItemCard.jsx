@@ -50,7 +50,7 @@ function ItemCard({ item, currentUserEmail, onView, onEdit, onDelete }) {
                     </div>
                     
                     <p className="text-gray-600 dark:text-gray-400 line-clamp-2 pt-2 text-xs" title={item.description}>
-                        <span className="font-semibold text-gray-700 dark:text-gray-200">Desc:</span> {item.description}
+                        <span className="font-semibold text-gray-700 dark:text-gray-200">Description:</span> {item.description}
                     </p>
                 </div>
                 
