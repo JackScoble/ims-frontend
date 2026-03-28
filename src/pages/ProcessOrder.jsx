@@ -5,7 +5,7 @@ import api from '../api/axios';
 const ProcessOrder = () => {
     const [items, setItems] = useState([]);
     const [recentOrders, setRecentOrders] = useState([]);
-    const [formData, setFormData] = useState({ item: '', quantity_ordered: 1 });
+    const [formData, setFormData] = useState({ item: '', quantity_ordered: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -42,7 +42,7 @@ const ProcessOrder = () => {
         const { name, value } = e.target;
         
         if (name === 'item') {
-            setFormData({ item: value, quantity_ordered: 1 });
+            setFormData({ item: value, quantity_ordered: '' });
         } else {
             setFormData({ ...formData, [name]: value });
         }
@@ -58,7 +58,7 @@ const ProcessOrder = () => {
             });
 
             toast.success('Order processed successfully!');
-            setFormData({ item: '', quantity_ordered: 1 });
+            setFormData({ item: '', quantity_ordered: '' });
             fetchInventory();
             fetchRecentOrders();
         } catch (error) {
@@ -121,6 +121,7 @@ const ProcessOrder = () => {
                                 <input 
                                     type="number" 
                                     name="quantity_ordered" 
+                                    placeholder='1'
                                     value={formData.quantity_ordered} 
                                     onChange={handleChange} 
                                     min="1"
