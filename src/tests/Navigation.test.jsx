@@ -6,9 +6,14 @@ import Layout from '../components/Layout'; // Adjust path if needed
 import api from '../api/axios';
 
 // --- Mocks ---
+/** * Mock the axios API client to prevent actual network requests 
+ * when fetching user profile data. 
+ */
 vi.mock('../api/axios');
 
-// Mock useNavigate from react-router-dom
+/** * Mock react-router-dom's useNavigate hook to track and verify 
+ * redirection behavior (e.g., redirecting to login upon logout).
+ */
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
     const actual = await vi.importActual('react-router-dom');
@@ -18,6 +23,11 @@ vi.mock('react-router-dom', async () => {
     };
 });
 
+/**
+ * Test suite for the Navigation & Layout component.
+ * Verifies the rendering of navigation links, brand identity, user profile 
+ * fetching/display, and the logout functionality.
+ */
 describe('Navigation & Layout', () => {
     const mockProfile = {
         username: 'jacks123',
@@ -27,12 +37,21 @@ describe('Navigation & Layout', () => {
         }
     };
 
+    /**
+     * Setup before each test.
+     * Clears previous mock calls and configures the default successful 
+     * response for the profile fetch endpoint.
+     */
     beforeEach(() => {
         vi.clearAllMocks();
         // Default successful profile fetch
         api.get.mockResolvedValue({ data: mockProfile });
     });
 
+    /**
+     * Helper function to render components wrapped in a MemoryRouter,
+     * which is required for components containing <Link> or `useNavigate`.
+     */
     const renderWithRouter = (ui) => {
         return render(<MemoryRouter>{ui}</MemoryRouter>);
     };
@@ -66,7 +85,7 @@ describe('Navigation & Layout', () => {
     });
 
     it('clears storage and redirects to login on logout', async () => {
-        // Setup spies for localStorage
+        // Setup spies for localStorage to ensure auth tokens are removed
         const removeSpy = vi.spyOn(Storage.prototype, 'removeItem');
         
         renderWithRouter(<Layout />);
@@ -83,14 +102,14 @@ describe('Navigation & Layout', () => {
     });
 
     it('handles profile fetch failure gracefully', async () => {
-        // Suppress console.error for this test to keep the log clean
+        // Suppress console.error for this test to keep the log clean during expected failures
         const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
         api.get.mockRejectedValueOnce(new Error('Unauthorized'));
 
         renderWithRouter(<Layout />);
 
         await waitFor(() => {
-            // Should fall back to 'User' if fetch fails
+            // Should fall back to 'User' and 'U' if fetch fails
             expect(screen.getByText('User')).toBeInTheDocument();
             expect(screen.getByText('U')).toBeInTheDocument();
         });

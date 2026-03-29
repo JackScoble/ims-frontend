@@ -1,19 +1,51 @@
+/**
+ * @file login.jsx
+ * @description Provides the user authentication entry point for the application.
+ */
+
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../api/axios';
 
+/**
+ * Login Component
+ *
+ * @component
+ * @description Renders the login page where users can authenticate. It manages state for user 
+ * credentials (email and password), submits them to the 'token/' API endpoint, and handles 
+ * the storage of the resulting JWT tokens (access and refresh) in local storage upon success. 
+ * If authentication is successful, the user is redirected to the dashboard.
+ *
+ * @returns {JSX.Element} The rendered Login page.
+ */
 function Login() {
+    // Authentication state variables
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    
+    // UI state variables
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    
     const navigate = useNavigate();
 
+    /**
+     * Handles the form submission to authenticate the user.
+     * Prevents default form submission, requests a JWT token from the API, sets it in 
+     * localStorage, and navigates to the dashboard upon success. Enforces an artificial 
+     * 1-second delay for smoother UI transitions.
+     *
+     * @async
+     * @function handleLogin
+     * @param {React.FormEvent<HTMLFormElement>} e - The form submission event.
+     * @returns {Promise<void>}
+     */
     const handleLogin = async (e) => {
         e.preventDefault();
         setIsLoading(true);
 
+        // Helper function to create an artificial delay
         const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
         try {
@@ -22,6 +54,7 @@ function Login() {
                 delay(1000)
             ]);
 
+            // Persist user session details
             localStorage.setItem('access_token', response.data.access);
             localStorage.setItem('refresh_token', response.data.refresh);
             localStorage.setItem('user_email', email);
@@ -35,6 +68,7 @@ function Login() {
         }
     };
 
+    /** @constant {string} inputClass - Shared Tailwind CSS classes for the input fields. */
     const inputClass = "w-full bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 text-sm rounded-lg focus:ring-[#8884d8] focus:border-[#8884d8] block p-2.5 transition-colors placeholder-gray-400 dark:placeholder-gray-500";
 
     return (

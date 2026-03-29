@@ -1,8 +1,29 @@
+/**
+ * @file itemviewmodal.jsx
+ * @description Modal component presenting a detailed view of a specific item,
+ * alongside a scrollable timeline of its audit history.
+ */
+
 import React from 'react';
 
+/**
+ * ItemViewModal Component
+ * Implements a responsive two-column layout: Item Details (left) and Audit History (right).
+ * * @param {Object} props - The component props.
+ * @param {boolean} props.isOpen - Determines if the modal is currently visible.
+ * @param {Object} props.item - The data object representing the item to view.
+ * @param {boolean} props.isLoadingHistory - Flag indicating if the audit logs are currently fetching.
+ * @param {string} props.historyError - Holds error messages if the audit history fetch fails.
+ * @param {Array<Object>} props.auditHistory - The array of historical changes associated with the item.
+ * @param {Function} props.onClose - Callback to close the modal.
+ * @returns {JSX.Element|null} The rendered view modal, or null if closed/no item.
+ */
 function ItemViewModal({ isOpen, item, isLoadingHistory, historyError, auditHistory, onClose }) {
     if (!isOpen || !item) return null;
 
+    /**
+     * Local helper component to standardize label-value pairs in the details grid.
+     */
     const DetailRow = ({ label, value }) => (
         <div className="flex flex-col mb-3">
             <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">{label}</span>

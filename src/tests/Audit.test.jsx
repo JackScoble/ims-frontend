@@ -5,8 +5,15 @@ import AuditLog from '../pages/AuditLog';
 import api from '../api/axios';
 
 // --- Mocks ---
+/** * Mock the axios API client to intercept backend requests.
+ */
 vi.mock('../api/axios');
 
+/**
+ * Test suite for the AuditLog Page component.
+ * Verifies that system logs are successfully retrieved, rendered, 
+ * and can be accurately filtered by search term, action type, or user.
+ */
 describe('AuditLog Page', () => {
     // 1. Setup Mock Data
     const mockLogs = [
@@ -28,6 +35,10 @@ describe('AuditLog Page', () => {
     ];
 
     // 2. Setup Before Each Test
+    /**
+     * Resets mock history and configures the default successful response
+     * for the audit endpoint before every individual test run.
+     */
     beforeEach(() => {
         // Reset all mocks before each test runs to prevent test pollution
         vi.clearAllMocks();

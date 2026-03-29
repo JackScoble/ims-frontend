@@ -2,10 +2,20 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import api from '../api/axios';
 
+/**
+ * ResetPassword Component
+ * * Renders a view allowing a user to set a new password. 
+ * Requires a valid reset token present in the URL parameters. 
+ * If the token is valid, takes the new password, verifies it matches the confirmation,
+ * submits it to the backend, and navigates the user back to the login page on success.
+ * * @component
+ * @returns {JSX.Element} The rendered Reset Password form.
+ */
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
+  /** @type {string | null} The password reset token extracted from the URL */
   const token = searchParams.get('token'); 
   
   const [password, setPassword] = useState('');
@@ -16,6 +26,15 @@ const ResetPassword = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  /**
+   * Handles the submission of the new password.
+   * * Validates that both password fields match. If successful, makes an 
+   * asynchronous POST request to the password confirmation endpoint using the token.
+   * Initiates a redirect sequence upon success.
+   * * @async
+   * @param {React.FormEvent<HTMLFormElement>} e - The React form submission event.
+   * @returns {Promise<void>}
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');

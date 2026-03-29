@@ -5,10 +5,16 @@ import Analytics from '../pages/Analytics';
 import api from '../api/axios';
 
 // --- Mocks ---
+/** * Mock the axios API client to prevent actual network requests during testing.
+ */
 vi.mock('../api/axios');
 
-// Mock Recharts ResponsiveContainer to simply render children
-// This prevents errors related to width/height being 0 in test environments
+/**
+ * Mock Recharts ResponsiveContainer.
+ * Recharts relies on DOM measurements (width/height) which are usually 0 in 
+ * test environments (like jsdom), causing rendering errors or empty charts.
+ * This mock bypasses the calculation and simply renders the child components.
+ */
 vi.mock('recharts', async () => {
     const original = await vi.importActual('recharts');
     return {
@@ -17,6 +23,11 @@ vi.mock('recharts', async () => {
     };
 });
 
+/**
+ * Test suite for the Analytics Page component.
+ * Verifies that the dashboard correctly fetches, calculates, and displays
+ * Key Performance Indicators (KPIs) and handles various loading/error states.
+ */
 describe('Analytics Page', () => {
     const mockItems = [
         { id: 1, name: 'Item A', quantity: 10, price: '10.00', category_name: 'Tech' },
@@ -32,6 +43,11 @@ describe('Analytics Page', () => {
         { id: 2, date: '2023-10-02', total_value: '150.00' },
     ];
 
+    /**
+     * Setup before each test runs.
+     * Mocks the `api.get` implementation to return predefined datasets 
+     * based on the requested endpoint URL.
+     */
     beforeEach(() => {
         api.get.mockImplementation((url) => {
             switch (url) {
@@ -50,7 +66,7 @@ describe('Analytics Page', () => {
         expect(screen.getByText(/gathering your analytics/i)).toBeInTheDocument();
     });
 
-it('calculates and displays correct KPI values after data fetch', async () => {
+    it('calculates and displays correct KPI values after data fetch', async () => {
         render(<Analytics />);
 
         // Math Check: 

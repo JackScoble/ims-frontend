@@ -1,3 +1,9 @@
+/**
+ * @file dashboard.jsx
+ * @description Main Dashboard view for the Inventory Management System.
+ * Handles the display, filtering, sorting, and state management for all inventory items.
+ */
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -9,6 +15,12 @@ import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import ItemCard from '../components/ItemCard';
 import DashboardFilterBar from '../components/DashboardFilterBar';
 
+/**
+ * Dashboard Component
+ * Manages the core inventory grid and coordinates interactions between the 
+ * filter bar, item cards, and CRUD modals.
+ * * @returns {JSX.Element} The rendered dashboard view.
+ */
 function Dashboard() {
     const [items, setItems] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -38,6 +50,9 @@ function Dashboard() {
         fetchCategories();
     }, []);
 
+    /**
+     * Fetches all inventory items from the API.
+     */
     const fetchInventory = async () => {
         try {
             const response = await api.get('items/');
@@ -48,6 +63,9 @@ function Dashboard() {
         }
     };
 
+    /**
+     * Fetches all available categories for the item form dropdowns.
+     */
     const fetchCategories = async () => {
         try {
             const response = await api.get('categories/');
@@ -60,12 +78,19 @@ function Dashboard() {
     const currentUserEmail = localStorage.getItem('user_email');
     const uniqueOwners = Array.from(new Set(items.map(item => item.owner_email))).filter(Boolean);
 
+    /**
+     * Opens the modal configured for creating a new item.
+     */
     const openAddModal = () => {
         setEditingId(null);
         setNewItem({ name: '', sku: '', category: '', quantity: 0, low_stock_threshold: 0, price: '', description: '', image: null });
         setModalType('form');
     };
 
+    /**
+     * Opens the modal configured for editing an existing item.
+     * @param {Object} item - The item object to populate the form with.
+     */
     const openEditModal = (item) => {
         setEditingId(item.id);
         setNewItem({
@@ -76,11 +101,19 @@ function Dashboard() {
         setModalType('form');
     };
 
+    /**
+     * Opens the confirmation modal for deleting an item.
+     * @param {Object} item - The item marked for deletion.
+     */
     const openDeleteModal = (item) => {
         setItemToDelete(item);
         setModalType('delete');
     };
 
+    /**
+     * Fetches detailed item data, including its specific audit history log.
+     * @param {number|string} itemId - The ID of the item to fetch.
+     */
     const fetchItemDetails = async (itemId) => {
         setIsLoadingHistory(true);
         setHistoryError('');
@@ -98,11 +131,18 @@ function Dashboard() {
         }
     };
 
+    /**
+     * Opens the view modal and triggers the fetch for audit history.
+     * @param {Object} item - The item to view.
+     */
     const openViewModal = (item) => {
         setModalType('view');
         fetchItemDetails(item.id);
     };
 
+    /**
+     * Resets all modal-related states to cleanly close any active overlay.
+     */
     const closeModal = () => {
         setModalType(null);
         setEditingId(null);
@@ -113,6 +153,11 @@ function Dashboard() {
         setIsLoadingHistory(false);
     };
 
+    /**
+     * Handles submission for both creating and updating inventory items.
+     * Utilizes FormData to properly handle potential image file uploads.
+     * @param {Event} e - The form submission event.
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -140,6 +185,8 @@ function Dashboard() {
             setNewItem({ name: '', sku: '', category: '', quantity: 0, low_stock_threshold: 5, price: '', description: '', image: null });
             const fileInput = document.getElementById('image-upload');
             if (fileInput) fileInput.value = '';
+            
+            closeModal();
 
         } catch (err) {
             console.error("Submit failed:", err.response?.data);
@@ -147,17 +194,23 @@ function Dashboard() {
         }
     };
 
+    /**
+     * Executes the API call to permanently delete an item.
+     * @param {number|string} id - The ID of the item to delete.
+     */
     const handleDelete = async (id) => {
         try {
             await api.delete(`items/${id}/`);
             setItems(items.filter(item => item.id !== id));
             toast.success('Item deleted successfully');
+            closeModal();
         } catch (err) {
             const msg = err.response?.data?.detail || 'Failed to delete';
             toast.error(msg);
         }
     };
 
+    // Derived state: Applies current search terms, filters, and sorting rules
     const processedItems = items.filter(item => {
         const lowerSearch = searchTerm.toLowerCase();
         const matchesSearch = item.name.toLowerCase().includes(lowerSearch) || item.sku.toLowerCase().includes(lowerSearch);
@@ -188,6 +241,9 @@ function Dashboard() {
         }
     });
 
+    /**
+     * Resets all search and filter states back to their defaults.
+     */
     const handleClearFilters = () => {
         setSearchTerm('');
         setSortConfig('-created_at');
@@ -199,7 +255,6 @@ function Dashboard() {
 
     return (
         <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto">
-            
             {/* Header Area */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-2">
                 <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 tracking-tight">Inventory Dashboard</h2>
@@ -261,7 +316,6 @@ function Dashboard() {
                 isOpen={modalType === 'delete'} item={itemToDelete}
                 onConfirm={handleDelete} onClose={closeModal}
             />
-
         </div>
     );
 }

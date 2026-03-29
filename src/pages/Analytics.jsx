@@ -1,9 +1,21 @@
+/**
+ * @file analytics.jsx
+ * @description The main analytics dashboard view. Fetches various system metrics
+ * (items, users, audits, orders) and processes them into high-level KPIs and
+ * chart-ready data structures for visualization.
+ */
+
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
 
 import KpiCard from '../components/KpiCard';
 import AnalyticsCharts from '../components/AnalyticsCharts';
 
+/**
+ * Analytics Component
+ * Acts as the data container and layout engine for the analytics page.
+ * @returns {JSX.Element} The rendered analytics dashboard view.
+ */
 const Analytics = () => {
   const [items, setItems] = useState([]);
   const [auditCount, setAuditCount] = useState(0);

@@ -2,12 +2,28 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 
+/**
+ * ForgotPassword Component
+ * * Renders a view for users to request a password reset link. 
+ * Captures the user's email, submits it to the backend API, 
+ * and handles loading states, success messages, and error handling.
+ * * @component
+ * @returns {JSX.Element} The rendered Forgot Password form.
+ */
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  /**
+   * Handles the submission of the forgot password form.
+   * * Prevents default form behavior, resets previous messages, sets the loading state, 
+   * and makes an asynchronous POST request to the password reset endpoint.
+   * * @async
+   * @param {React.FormEvent<HTMLFormElement>} e - The React form submission event.
+   * @returns {Promise<void>}
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);

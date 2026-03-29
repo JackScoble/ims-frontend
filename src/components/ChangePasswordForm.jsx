@@ -1,23 +1,52 @@
+/**
+ * @file changepasswordform.jsx
+ * @description Provides a form component for authenticated users to securely update their password.
+ */
+
 import React, { useState } from 'react';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 
+/**
+ * ChangePasswordForm Component
+ *
+ * @component
+ * @description Renders a form with fields for the current password, a new password, and a confirmation
+ * of the new password. It handles client-side validation to ensure the new passwords match, manages
+ * visibility toggles for secure text entry, and communicates with the 'password_change/' API endpoint.
+ * Success and error states are presented to the user via toast notifications.
+ *
+ * @returns {JSX.Element} The rendered Change Password form.
+ */
 const ChangePasswordForm = () => {
+    // Form state variables
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     
-    // Visibility toggle states
+    // Visibility toggle states for password fields
     const [showOldPassword, setShowOldPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     
+    // UI state
     const [isLoading, setIsLoading] = useState(false);
 
+    /** @constant {string} inputStyle - Shared Tailwind CSS classes for the input fields. */
     const inputStyle = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 text-sm rounded-md focus:ring-rose-500 focus:border-rose-500 block p-2.5 transition-colors shadow-sm w-full";
 
+    /**
+     * Handles the form submission to update the user's password.
+     * Validates that the new passwords match before sending a PUT request to the API.
+     *
+     * @async
+     * @function handleSubmit
+     * @param {React.FormEvent<HTMLFormElement>} e - The form submission event.
+     * @returns {Promise<void>}
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
         if (newPassword !== confirmPassword) {
             toast.error('New passwords do not match!');
             return;
@@ -30,6 +59,8 @@ const ChangePasswordForm = () => {
                 new_password: newPassword
             });
             toast.success(response.data.message || 'Password updated successfully!');
+            
+            // Reset form fields upon success
             setOldPassword('');
             setNewPassword('');
             setConfirmPassword('');

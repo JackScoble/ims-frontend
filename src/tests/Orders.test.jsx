@@ -7,17 +7,27 @@ import api from '../api/axios';
 import toast from 'react-hot-toast';
 
 // --- Mocks ---
+/** Mock the API client for fetching items/orders and submitting transactions. */
 vi.mock('../api/axios');
+
+/** Mock toast notifications to verify success and error messaging. */
 vi.mock('react-hot-toast');
 
+/**
+ * Test suite for the ProcessOrder Component.
+ * Verifies the ability to select inventory, validate stock quantities, 
+ * submit new orders, handle server errors, and view recent transaction history.
+ */
 describe('ProcessOrder Component', () => {
     let user;
 
+    /** @type {Array<Object>} Mocked inventory items available for ordering. */
     const mockItems = [
         { id: 1, name: 'Widget A', quantity: 10 },
         { id: 2, name: 'Widget B', quantity: 0 }, // Out of stock
     ];
 
+    /** @type {Array<Object>} Mocked historical order data. */
     const mockOrders = [
         {
             id: 101,
@@ -37,6 +47,11 @@ describe('ProcessOrder Component', () => {
         }
     ];
 
+    /**
+     * Setup before each test.
+     * Initializes userEvent and configures default successful responses
+     * for the items and orders API endpoints.
+     */
     beforeEach(() => {
         user = userEvent.setup();
         // Default successful GET mocks
@@ -47,6 +62,10 @@ describe('ProcessOrder Component', () => {
         });
     });
 
+    /**
+     * Cleanup after each test.
+     * Clears mock history to prevent state leakage between tests.
+     */
     afterEach(() => {
         vi.clearAllMocks();
     });
@@ -86,13 +105,13 @@ describe('ProcessOrder Component', () => {
         // Type quantity 15 (Over stock)
         await user.type(quantityInput, '15');
 
-        // Check validation UI
+        // Check validation UI prevents submission
         expect(screen.getByText(/cannot order more than available stock/i)).toBeInTheDocument();
         expect(submitButton).toBeDisabled();
     });
 
     it('submits a new order successfully and refreshes data', async () => {
-        // 1. Add a small delay to the mock implementation
+        // 1. Add a small delay to the mock implementation to allow testing the loading state
         api.post.mockImplementation(() => 
             new Promise(resolve => setTimeout(() => resolve({ data: { message: 'Success' } }), 50))
         );
@@ -124,7 +143,7 @@ describe('ProcessOrder Component', () => {
             expect(toast.success).toHaveBeenCalledWith('Order processed successfully!');
         });
 
-        // Verify form resets back to original state
+        // Verify form resets back to original state after success
         await waitFor(() => {
             expect(screen.getByRole('button', { name: /complete transaction/i })).toBeInTheDocument();
             expect(screen.getByRole('combobox').value).toBe("");
@@ -158,7 +177,7 @@ describe('ProcessOrder Component', () => {
     });
 
     it('shows empty state when no recent orders exist', async () => {
-        // Mock empty orders
+        // Mock empty orders dataset
         api.get.mockImplementation((url) => {
             if (url === 'items/') return Promise.resolve({ data: mockItems });
             if (url === 'orders/') return Promise.resolve({ data: [] });
