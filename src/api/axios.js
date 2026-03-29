@@ -5,7 +5,7 @@ import axios from 'axios';
  * Sets the base URL for all API calls and ensures payloads are sent as JSON.
  */
 const api = axios.create({
-    baseURL: 'https://silver-spork-wr99rrv7xjvv3gw49-8000.app.github.dev/api/', 
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api/', 
     headers: {
         'Content-Type': 'application/json',
     }
