@@ -61,8 +61,11 @@ function Register() {
                     
                     {/* Email Input */}
                     <div>
-                        <label className={labelClass}>Email Address</label>
+                        <label className={labelClass} htmlFor="email">
+                            Email Address
+                        </label>
                         <input 
+                            id="email"
                             type="email" 
                             placeholder="you@company.com" 
                             value={email} 
@@ -74,9 +77,12 @@ function Register() {
 
                     {/* Password Input */}
                     <div>
-                        <label className={labelClass}>Password</label>
+                        <label className={labelClass} htmlFor="password">
+                            Password
+                        </label>
                         <div className="relative">
                             <input 
+                                id="password"
                                 type={showPassword ? "text" : "password"} 
                                 placeholder="••••••••" 
                                 value={password} 
@@ -106,9 +112,12 @@ function Register() {
 
                     {/* Confirm Password Input */}
                     <div>
-                        <label className={labelClass}>Confirm Password</label>
+                        <label className={labelClass} htmlFor="confirmPassword">
+                            Confirm Password
+                        </label>
                         <div className="relative">
                             <input 
+                                id="confirmPassword"
                                 type={showConfirmPassword ? "text" : "password"} 
                                 placeholder="••••••••" 
                                 value={confirmPassword} 

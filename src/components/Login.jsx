@@ -54,10 +54,11 @@ function Login() {
                     
                     {/* Email Input */}
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 uppercase tracking-wide">
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 uppercase tracking-wide" htmlFor="email">
                             Email Address
                         </label>
                         <input 
+                            id="email"
                             type="email" 
                             placeholder="you@company.com" 
                             value={email} 
@@ -70,7 +71,7 @@ function Login() {
                     {/* Password Input with floating Forgot link */}
                     <div>
                         <div className="flex justify-between items-center mb-1.5">
-                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide" htmlFor="password">
                                 Password
                             </label>
                             <Link to="/forgot-password" size="sm" className="text-xs font-semibold text-[#8884d8] dark:text-[#a5a1ff] hover:text-[#706ac9] hover:underline transition-colors">
@@ -79,6 +80,7 @@ function Login() {
                         </div>
                         <div className="relative">
                             <input 
+                                id="password"
                                 type={showPassword ? "text" : "password"} 
                                 placeholder="••••••••" 
                                 value={password} 
