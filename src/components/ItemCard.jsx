@@ -1,5 +1,22 @@
+/**
+ * @file itemcard.jsx
+ * @description Presentational component for displaying inventory items in a grid.
+ */
+
 import React from 'react';
 
+/**
+ * Renders an individual inventory item card.
+ * Conditionally applies warning styles if stock drops to or below the low-stock threshold,
+ * and only renders the "Delete" button if the current user is the original creator.
+ * * @param {Object} props - The component props.
+ * @param {Object} props.item - The data object representing the inventory item.
+ * @param {string} props.currentUserEmail - Used to evaluate ownership permissions.
+ * @param {Function} props.onView - Callback fired when the 'View' button is clicked.
+ * @param {Function} props.onEdit - Callback fired when the 'Edit' button is clicked.
+ * @param {Function} props.onDelete - Callback fired when the 'Delete' button is clicked.
+ * @returns {JSX.Element} The styled item card.
+ */
 function ItemCard({ item, currentUserEmail, onView, onEdit, onDelete }) {
     const threshold = item.low_stock_threshold || 0;
     const isLowStock = item.quantity <= threshold;

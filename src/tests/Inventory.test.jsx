@@ -5,7 +5,10 @@ import Dashboard from '../pages/Dashboard';
 import api from '../api/axios';
 
 // --- Mocks ---
+/** Mock API client for fetching inventory data and submitting changes */
 vi.mock('../api/axios');
+
+/** Mock toast notifications to prevent rendering issues and verify success/error states */
 vi.mock('react-hot-toast', () => ({
   default: {
     success: vi.fn(),
@@ -14,11 +17,13 @@ vi.mock('react-hot-toast', () => ({
 }));
 
 // --- Mock Data ---
+/** @type {Array<Object>} Mocked category reference data */
 const mockCategories = [
   { id: 1, name: 'Power Tools' },
   { id: 2, name: 'Hand Tools' }
 ];
 
+/** @type {Array<Object>} Mocked inventory items for populating the dashboard */
 const mockItems = [
   {
     id: 101,
@@ -46,10 +51,16 @@ const mockItems = [
   }
 ];
 
+/** @type {Array<Object>} Mocked audit logs for a specific item */
 const mockAuditLogs = [
   { id: 1, action: 'Created', timestamp: '2023-10-01T12:00:00Z', username: 'owner@test.com', description: 'Initial stock added' }
 ];
 
+/**
+ * Test suite for the main Inventory Dashboard integration.
+ * Verifies that the dashboard correctly fetches data, applies client-side 
+ * filtering, handles ownership permissions, and manages CRUD modal interactions.
+ */
 describe('Inventory System Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -65,6 +76,7 @@ describe('Inventory System Integration', () => {
     });
   });
 
+  /** Utility function to render the dashboard wrapped in necessary providers */
   const renderDashboard = () => render(
     <BrowserRouter>
       <Dashboard />
@@ -80,6 +92,10 @@ describe('Inventory System Integration', () => {
   });
 
   // --- 2. Filtering Logic ---
+  /**
+   * Sub-suite testing the search bar and drop-down filtering logic
+   * applied to the currently displayed inventory items.
+   */
   describe('Filtering and Searching', () => {
     it('filters the list based on search term (Name or SKU)', async () => {
       renderDashboard();
@@ -104,37 +120,41 @@ describe('Inventory System Integration', () => {
   });
 
   // --- 3. Modal Interactions (Create/View/Delete) ---
+  /**
+   * Sub-suite testing user interactions that trigger modals, including
+   * adding new items, viewing item history, and deleting items.
+   */
   describe('Inventory Actions', () => {
     
-  it('opens the Add Modal and handles item creation', async () => {
-    api.post.mockResolvedValue({ data: { ...mockItems[0], id: 103, name: 'New Drill' } });
-    renderDashboard();
+    it('opens the Add Modal and handles item creation', async () => {
+      api.post.mockResolvedValue({ data: { ...mockItems[0], id: 103, name: 'New Drill' } });
+      renderDashboard();
 
-    // 1. Open the modal
-    fireEvent.click(screen.getByText(/Add New Item/i));
-    
-    // 2. Wait for modal to appear
-    await screen.findByText(/Add New Inventory/i);
+      // 1. Open the modal
+      fireEvent.click(screen.getByText(/Add New Item/i));
+      
+      // 2. Wait for modal to appear
+      await screen.findByText(/Add New Inventory/i);
 
-    // 3. Fill out the form using Labels (The most robust way to test!)
-    // This looks for a label "Name" and finds the input linked to it
-    fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: 'New Drill' } });
-    fireEvent.change(screen.getByLabelText(/SKU/i), { target: { value: 'DRL-123' } });
-    fireEvent.change(screen.getByLabelText(/Current Quantity/i), { target: { value: '10' } });
-    fireEvent.change(screen.getByLabelText(/Alert Threshold/i), { target: { value: '2' } });
-    fireEvent.change(screen.getByLabelText(/Price/i), { target: { value: '45.00' } });
+      // 3. Fill out the form using Labels (The most robust way to test!)
+      // This looks for a label "Name" and finds the input linked to it
+      fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: 'New Drill' } });
+      fireEvent.change(screen.getByLabelText(/SKU/i), { target: { value: 'DRL-123' } });
+      fireEvent.change(screen.getByLabelText(/Current Quantity/i), { target: { value: '10' } });
+      fireEvent.change(screen.getByLabelText(/Alert Threshold/i), { target: { value: '2' } });
+      fireEvent.change(screen.getByLabelText(/Price/i), { target: { value: '45.00' } });
 
-    // 4. Select category
-    // Using 'combobox' because it's a <select> element
-    const categorySelect = screen.getByLabelText(/Category/i);
-    fireEvent.change(categorySelect, { target: { value: '1' } });
+      // 4. Select category
+      // Using 'combobox' because it's a <select> element
+      const categorySelect = screen.getByLabelText(/Category/i);
+      fireEvent.change(categorySelect, { target: { value: '1' } });
 
-    // 5. Submit
-    fireEvent.click(screen.getByText('Add Item'));
+      // 5. Submit
+      fireEvent.click(screen.getByText('Add Item'));
 
-    await waitFor(() => {
-        expect(api.post).toHaveBeenCalled();
-    });
+      await waitFor(() => {
+          expect(api.post).toHaveBeenCalled();
+      });
     });
 
     it('opens View Modal and displays Audit History', async () => {

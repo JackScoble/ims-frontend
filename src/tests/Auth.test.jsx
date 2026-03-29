@@ -7,11 +7,20 @@ import Login from '../components/Login';
 import Register from '../components/Register';
 import ResetPassword from '../pages/ResetPassword';
 
-// 1. MOCKS
+// --- 1. MOCKS ---
+
+/**
+ * Mock the axios API client to prevent actual network requests and 
+ * allow simulating different backend responses (success/failure).
+ */
 vi.mock('../api/axios', () => ({
   default: { post: vi.fn() }
 }));
 
+/**
+ * Mock react-hot-toast to verify that the correct success/error 
+ * notification messages are triggered during the auth flow.
+ */
 vi.mock('react-hot-toast', () => ({
   default: {
     error: vi.fn(),
@@ -19,18 +28,29 @@ vi.mock('react-hot-toast', () => ({
   },
 }));
 
+/**
+ * Mock react-router-dom's useNavigate hook to track and assert 
+ * that the user is redirected to the correct routes after actions.
+ */
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return { ...actual, useNavigate: () => mockNavigate };
 });
 
+/**
+ * Test suite for the Authentication Flow.
+ * Covers user journeys including logging in, registering a new account, 
+ * and resetting a password, ensuring proper API interaction, validation, 
+ * and navigation.
+ */
 describe('Authentication Flow', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('Login: shows error toast on invalid credentials', async () => {
+    // Simulate a 401/400 bad request from the backend
     api.post.mockRejectedValueOnce({
       response: { data: { detail: 'Invalid credentials' } }
     });
@@ -79,6 +99,11 @@ describe('Authentication Flow', () => {
     });
   });
 
+  /**
+   * Tests the password reset flow using fake timers.
+   * Fake timers are required here to bypass the setTimeout delay 
+   * implemented in the component before redirecting the user.
+   */
   it('ResetPassword: handles success and redirects', async () => {
     vi.useFakeTimers();
     api.post.mockResolvedValueOnce({ data: { message: 'Success' }, status: 200 });

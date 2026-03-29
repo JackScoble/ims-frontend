@@ -1,9 +1,22 @@
+/**
+ * @file profile.jsx
+ * @description The user profile and settings view. Allows the user to update their 
+ * personal information, profile picture, application theme, and password.
+ * Also displays account statistics and a profile completion meter.
+ */
+
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 import ChangePasswordForm from '../components/ChangePasswordForm';
 import { useTheme } from '../context/ThemeContext';
 
+/**
+ * Profile Component
+ * Manages form state, handles API interactions for updating profile data, 
+ * and controls UI states like saving/unsaved indicators.
+ * * @returns {JSX.Element} The rendered profile dashboard.
+ */
 const Profile = () => {
     const [formData, setFormData] = useState({
         email: '', first_name: '', last_name: '', department: '', job_title: '',
@@ -13,7 +26,6 @@ const Profile = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
 
-    
     const [completionPercentage, setCompletionPercentage] = useState(0);
     
     const [userStats, setUserStats] = useState({
@@ -30,6 +42,11 @@ const Profile = () => {
 
     const { theme, setTheme } = useTheme();
 
+    /**
+     * Handles changes to the theme preference dropdown. 
+     * Updates the local context and persists the choice to the backend.
+     * * @param {React.ChangeEvent<HTMLSelectElement>} e - The select change event.
+     */
     const handleThemeChange = async (e) => {
         const newTheme = e.target.value;
         
@@ -46,6 +63,11 @@ const Profile = () => {
         }
     };
 
+    /**
+     * Calculates the percentage of completed profile fields.
+     * * @param {...(string|null|undefined)} fields - The values of the profile fields to check.
+     * @returns {number} The completion percentage (0-100).
+     */
     const calculateCompletion = (email, firstName, lastName, department, jobTitle, image) => {
         const fields = [email, firstName, lastName, department, jobTitle, image];
         const filledFields = fields.filter(field => 
@@ -54,6 +76,9 @@ const Profile = () => {
         return Math.round((filledFields.length / fields.length) * 100);
     };
 
+    /**
+     * Fetches the user's profile data, statistics, and theme settings on mount.
+     */
     useEffect(() => {
         const fetchProfile = async () => {
             try {
@@ -98,11 +123,20 @@ const Profile = () => {
         fetchProfile();
     }, []);
 
+    /**
+     * Handles text input changes for the profile form.
+     * * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event.
+     */
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
         setHasChanges(true);
     };
 
+    /**
+     * Handles the file input for updating the profile picture.
+     * Creates a local object URL for previewing the image before submission.
+     * * @param {React.ChangeEvent<HTMLInputElement>} e - The file input change event.
+     */
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -112,6 +146,10 @@ const Profile = () => {
         }
     };
 
+    /**
+     * Submits the updated profile data via a multipart form data request.
+     * * @param {React.FormEvent} e - The form submission event.
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -142,11 +180,21 @@ const Profile = () => {
         }
     };
 
+    /**
+     * Formats a standard date string for UI display.
+     * * @param {string|null} dateString - The raw date string.
+     * @returns {string} The formatted date (e.g., "Oct 2023").
+     */
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
         return new Date(dateString).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
     };
 
+    /**
+     * Formats a standard datetime string for UI display, including time.
+     * * @param {string|null} dateString - The raw datetime string.
+     * @returns {string} The formatted datetime (e.g., "Oct 24, 14:30").
+     */
     const formatDateTime = (dateString) => {
         if (!dateString) return 'N/A';
         return new Date(dateString).toLocaleString('en-GB', { 

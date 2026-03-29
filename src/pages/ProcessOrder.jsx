@@ -1,7 +1,20 @@
+/**
+ * @file processorder.jsx
+ * @description Form and data table component for processing new inventory orders.
+ * Fetches available inventory, allows users to deduct stock via a form, and
+ * displays a 7-day history of recent transactions.
+ */
+
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import api from '../api/axios';
 
+/**
+ * ProcessOrder Component
+ * Handles the state and API calls necessary to submit an order request
+ * and display a recent history of those submissions.
+ * * @returns {JSX.Element} The rendered Process Order page component.
+ */
 const ProcessOrder = () => {
     const [items, setItems] = useState([]);
     const [recentOrders, setRecentOrders] = useState([]);

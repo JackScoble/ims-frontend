@@ -1,5 +1,19 @@
+/**
+ * @file kpicard.jsx
+ * @description A reusable card component used to display a single Key Performance Indicator (KPI).
+ */
+
 import React from 'react';
 
+/**
+ * KpiCard Component
+ * Renders a styled metric card with a title, numerical value, and thematic color accent.
+ * * @param {Object} props - The component props.
+ * @param {string} props.title - The label/title for the KPI.
+ * @param {number|string} props.value - The numerical value or string to display.
+ * @param {string} props.color - The CSS color code used for styling accents.
+ * @returns {JSX.Element} The rendered KPI card.
+ */
 function KpiCard({ title, value, color }) {
     return (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center transition-all duration-200 hover:shadow-md hover:border-gray-200 dark:hover:border-gray-600 group">

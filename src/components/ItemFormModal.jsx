@@ -1,5 +1,23 @@
+/**
+ * @file itemformmodal.jsx
+ * @description Modal component containing the form used for both creating 
+ * and editing inventory items. Handles file uploads for images and category selection.
+ */
+
 import React from 'react';
 
+/**
+ * ItemFormModal Component
+ * * @param {Object} props - The component props.
+ * @param {boolean} props.isOpen - Determines if the modal is currently visible.
+ * @param {boolean} props.isEditing - Flags whether the form is in 'Edit' mode vs 'Create' mode.
+ * @param {Object} props.newItem - The state object holding the current form data.
+ * @param {Function} props.setNewItem - State setter function to update form fields.
+ * @param {Array<Object>} props.categories - Array of category objects for the dropdown select.
+ * @param {Function} props.onSubmit - Callback fired when the form is submitted.
+ * @param {Function} props.onClose - Callback to close the modal without saving.
+ * @returns {JSX.Element|null} The rendered form modal, or null if not open.
+ */
 function ItemFormModal({ isOpen, isEditing, newItem, setNewItem, categories, onSubmit, onClose }) {
     if (!isOpen) return null;
 

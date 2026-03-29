@@ -1,11 +1,27 @@
+/**
+ * @file Layout.jsx
+ * @description The master layout component for the application. It provides the 
+ * persistent UI shell, including the sidebar navigation, user profile widget, 
+ * and the main content area for rendering nested, authenticated routes.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
+/**
+ * Layout Component
+ * Fetches brief user profile data to display in the sidebar and handles user logout.
+ * * @returns {JSX.Element} The rendered layout shell wrapping the nested route content.
+ */
 const Layout = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
 
+  /**
+   * Fetches the minimal profile information needed for the sidebar widget
+   * on initial mount.
+   */
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -18,12 +34,22 @@ const Layout = () => {
     fetchProfile();
   }, []);
 
+  /**
+   * Handles user logout by clearing local storage tokens and 
+   * redirecting to the login view.
+   */
   const handleLogout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     navigate('/login');
   };
 
+  /**
+   * Determines the dynamic CSS classes for navigation links based on their active state.
+   * * @param {Object} props - React Router NavLink props.
+   * @param {boolean} props.isActive - Whether the current route matches the link.
+   * @returns {string} The computed CSS class string.
+   */
   const navLinkClasses = ({ isActive }) =>
     `px-3 py-2 rounded-md transition-colors font-medium ${
       isActive

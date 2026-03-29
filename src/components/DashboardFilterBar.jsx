@@ -1,5 +1,32 @@
+/**
+ * @file dashboardfilterbar.jsx
+ * @description A comprehensive filter and search bar component for the dashboard.
+ * Allows users to filter items by search term, sorting configuration, quantity range,
+ * image presence, stock level, and specific owners.
+ */
+
 import React from 'react';
 
+/**
+ * DashboardFilterBar Component
+ * Renders the top filter controls for the main dashboard view.
+ * * @param {Object} props - The component props.
+ * @param {string} props.searchTerm - The current search string.
+ * @param {Function} props.setSearchTerm - State setter for the search term.
+ * @param {string} props.sortConfig - The current sorting configuration (e.g., '-created_at').
+ * @param {Function} props.setSortConfig - State setter for the sorting configuration.
+ * @param {Object} props.filterQty - Object containing 'min' and 'max' numerical values for filtering.
+ * @param {Function} props.setFilterQty - State setter for the quantity filter object.
+ * @param {string} props.filterImage - The current image filter state ('', 'yes', 'no').
+ * @param {Function} props.setFilterImage - State setter for the image filter.
+ * @param {string} props.filterLowStock - The current low stock filter state ('', 'yes', 'no').
+ * @param {Function} props.setFilterLowStock - State setter for the low stock filter.
+ * @param {string} props.filterOwner - The current selected owner email to filter by.
+ * @param {Function} props.setFilterOwner - State setter for the owner filter.
+ * @param {string[]} props.uniqueOwners - Array of unique owner email addresses.
+ * @param {Function} props.onClearFilters - Callback to reset all filters to their default empty/initial states.
+ * @returns {JSX.Element} The rendered filter bar.
+ */
 function DashboardFilterBar({
     searchTerm, setSearchTerm,
     sortConfig, setSortConfig,

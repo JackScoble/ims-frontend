@@ -1,6 +1,18 @@
+/**
+ * @file auditlog.jsx
+ * @description A system audit log component providing traceability for all inventory
+ * and user modifications. Includes robust client-side filtering and sorting of logs.
+ */
+
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
 
+/**
+ * AuditLog Component
+ * Fetches log data from the backend and provides a UI to filter logs by search term,
+ * date range, action type, and specific users. Formats output in a responsive table.
+ * * @returns {JSX.Element} The rendered audit log view.
+ */
 const AuditLog = () => {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);

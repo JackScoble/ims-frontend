@@ -1,5 +1,21 @@
+/**
+ * @file deleteconfirmmodal.jsx
+ * @description A destructive-action confirmation modal to prevent accidental
+ * deletions of inventory items.
+ */
+
 import React from 'react';
 
+/**
+ * DeleteConfirmModal Component
+ * Prompts the user to confirm they want to permanently delete an item.
+ * * @param {Object} props - The component props.
+ * @param {boolean} props.isOpen - Determines if the modal is currently visible.
+ * @param {Object} props.item - The data object representing the item slated for deletion.
+ * @param {Function} props.onClose - Callback to close the modal without deleting.
+ * @param {Function} props.onConfirm - Callback fired when deletion is confirmed. Passed the item's ID.
+ * @returns {JSX.Element|null} The rendered confirmation modal, or null if closed.
+ */
 function DeleteConfirmModal({ isOpen, item, onClose, onConfirm }) {
     if (!isOpen || !item) return null;
 

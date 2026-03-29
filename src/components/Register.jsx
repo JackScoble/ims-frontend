@@ -1,17 +1,48 @@
+/**
+ * @file register.jsx
+ * @description Provides the user registration page for the application.
+ */
+
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../api/axios';
 
+/**
+ * Register Component
+ *
+ * @component
+ * @description Renders a registration form for new users to create an account.
+ * Manages form state, performs client-side validation for password matching, 
+ * and handles the API submission to the 'register/' endpoint. Redirects users 
+ * to the login page upon successful account creation.
+ *
+ * @returns {JSX.Element} The rendered Registration page.
+ */
 function Register() {
+    // Form state variables
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    
+    // UI state variables
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    
     const navigate = useNavigate();
 
+    /**
+     * Handles the form submission for user registration.
+     * Prevents default form behavior, checks if passwords match, and submits the data
+     * to the registration API endpoint. Resolves loading states and errors, and routes
+     * the user to the login screen on success.
+     *
+     * @async
+     * @function handleRegister
+     * @param {React.FormEvent<HTMLFormElement>} e - The form submission event.
+     * @returns {Promise<void>}
+     */
     const handleRegister = async (e) => {
         e.preventDefault();
         
@@ -20,6 +51,7 @@ function Register() {
         }
 
         setIsLoading(true);
+        // Helper function to create an artificial delay
         const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
         try {
@@ -41,7 +73,10 @@ function Register() {
         }
     };
 
+    /** @constant {string} inputClass - Shared Tailwind CSS classes for the input fields. */
     const inputClass = "w-full bg-gray-50 dark:bg-gray-700/50 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 text-sm rounded-lg focus:ring-[#8884d8] focus:border-[#8884d8] block p-2.5 transition-colors placeholder-gray-400 dark:placeholder-gray-500";
+    
+    /** @constant {string} labelClass - Shared Tailwind CSS classes for the input labels. */
     const labelClass = "block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 uppercase tracking-wide";
 
     return (

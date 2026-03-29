@@ -1,3 +1,9 @@
+/**
+ * @file analyticscharts.jsx
+ * @description A data visualization component that uses Recharts to render
+ * Line, Bar, and Pie charts representing inventory metrics.
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -8,6 +14,16 @@ const COLORS = ['#8884d8', '#82ca9d', '#0088FE', '#00C49F', '#FFBB28', '#FF8042'
 const chartCardClass = "bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 min-w-0 transition-colors";
 const titleClass = "text-lg font-bold text-gray-800 dark:text-white mb-6 text-center tracking-tight transition-colors";
 
+/**
+ * AnalyticsCharts Component
+ * Takes processed data arrays and maps them to interactive Recharts graphics.
+ * Includes a mounting check to prevent hydration mismatch errors.
+ * * @param {Object} props - The component props.
+ * @param {Array<Object>} props.dynamicChartData - Time-series data for the stock value Line chart.
+ * @param {Array<Object>} props.categoryStockData - Aggregated quantity data for the category Bar chart.
+ * @param {Array<Object>} props.pieData - Aggregated count data for the category Pie chart.
+ * @returns {JSX.Element} The rendered charts grid.
+ */
 function AnalyticsCharts({ dynamicChartData, categoryStockData, pieData }) {
     const [isMounted, setIsMounted] = useState(false);
 

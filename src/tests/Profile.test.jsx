@@ -8,26 +8,49 @@ import toast from 'react-hot-toast';
 import { useTheme } from '../context/ThemeContext';
 
 // --- Mocks ---
+
+/** Mock the API client for fetching and updating user profile data. */
 vi.mock('../api/axios');
+
+/** Mock toast notifications to verify success and error messages during updates. */
 vi.mock('react-hot-toast');
 
-// Mock ThemeContext
+/**
+ * Mock the ThemeContext.
+ * Allows tracking calls to `setTheme` and simulating different initial themes
+ * without needing to wrap the component in the actual provider during testing.
+ */
 vi.mock('../context/ThemeContext', () => ({
     useTheme: vi.fn(),
 }));
 
-// Mock the child component to isolate the Profile component tests
+/**
+ * Mock the child `ChangePasswordForm` component.
+ * Isolates the `Profile` component tests from the complex logic inside the password form.
+ * This ensures we are strictly testing the Profile component's behavior.
+ */
 vi.mock('../components/ChangePasswordForm', () => ({
     default: () => <div data-testid="mock-change-password-form">Change Password Form</div>,
 }));
 
-// URL.createObjectURL needs a mock in JS DOM environments
+/**
+ * Mock `URL.createObjectURL`.
+ * JS DOM environments (like those used by Vitest/Jest) do not support this browser API natively.
+ * It must be mocked to prevent crashes when testing image file uploads that generate preview URLs.
+ */
 global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
 
+/**
+ * Test suite for the Profile Component.
+ * Verifies that user data is correctly fetched and rendered, changes trigger save state tracking,
+ * updates (including file uploads and theme changes) are submitted to the API, and the UI
+ * responds properly to success and error states.
+ */
 describe('Profile Component', () => {
     let mockSetTheme;
     let user;
 
+    /** @type {Object} Mocked response payload representing the user's profile data. */
     const mockProfileData = {
         email: 'john.doe@enterprise.com',
         first_name: 'John',
@@ -45,6 +68,11 @@ describe('Profile Component', () => {
         },
     };
 
+    /**
+     * Setup before each test runs.
+     * Initializes `userEvent`, configures the `useTheme` mock behavior, 
+     * and sets up the default successful API response for the profile fetch.
+     */
     beforeEach(() => {
         user = userEvent.setup();
         mockSetTheme = vi.fn();
@@ -54,6 +82,10 @@ describe('Profile Component', () => {
         api.get.mockResolvedValue({ data: mockProfileData });
     });
 
+    /**
+     * Cleanup after each test.
+     * Clears mock history to ensure isolation between tests.
+     */
     afterEach(() => {
         vi.clearAllMocks();
     });
