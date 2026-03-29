@@ -8,10 +8,6 @@ jobs:
   test-frontend:
     name: Build & Test React
     runs-on: ubuntu-latest
-    
-    defaults:
-      run:
-        working-directory: ./ims-frontend 
 
     steps:
       - name: 🛑 Checkout code
@@ -20,7 +16,7 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20' 
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
 
