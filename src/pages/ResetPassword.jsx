@@ -102,9 +102,12 @@ const ResetPassword = () => {
           
           {/* New Password Input */}
           <div>
-            <label className={labelClass}>New Password</label>
+            <label className={labelClass} htmlFor="password">
+              New Password
+            </label>
             <div className="relative">
                 <input 
+                id="password"
                 type={showPassword ? "text" : "password"} 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
@@ -134,9 +137,12 @@ const ResetPassword = () => {
 
           {/* Confirm Password Input */}
           <div>
-            <label className={labelClass}>Confirm New Password</label>
+            <label className={labelClass} htmlFor="confirmPassword">
+              Confirm New Password
+            </label>
             <div className="relative">
                 <input 
+                id="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"} 
                 value={confirmPassword} 
                 onChange={(e) => setConfirmPassword(e.target.value)} 

@@ -26,49 +26,49 @@ function ItemFormModal({ isOpen, isEditing, newItem, setNewItem, categories, onS
                     
                     <div className="flex flex-col sm:flex-row gap-4">
                         <div className="flex-1">
-                            <label className={labelClass}>Name <RequiredAsterisk /></label>
-                            <input type="text" placeholder="Claw Hammer" value={newItem.name || ''} onChange={(e) => setNewItem({...newItem, name: e.target.value})} required className={inputClass} />
+                            <label className={labelClass} htmlFor="item-name">Name <RequiredAsterisk /></label>
+                            <input id="item-name" type="text" placeholder="Claw Hammer" value={newItem.name || ''} onChange={(e) => setNewItem({...newItem, name: e.target.value})} required className={inputClass} />
                         </div>
                         <div className="w-full sm:w-1/3">
-                            <label className={labelClass}>SKU <RequiredAsterisk /></label>
-                            <input type="text" placeholder="TOOL-001" value={newItem.sku || ''} onChange={(e) => setNewItem({...newItem, sku: e.target.value})} required className={inputClass} />
+                            <label className={labelClass} htmlFor="item-sku">SKU <RequiredAsterisk /></label>
+                            <input id="item-sku" type="text" placeholder="TOOL-001" value={newItem.sku || ''} onChange={(e) => setNewItem({...newItem, sku: e.target.value})} required className={inputClass} />
                         </div>
                     </div>
 
                     <div className="flex gap-4">
                         <div className="flex-1">
-                            <label className={labelClass}>Current Quantity <RequiredAsterisk /></label>
-                            <input type="number" placeholder="0" value={newItem.quantity || ''} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setNewItem({...newItem, quantity: e.target.value.replace(/\D/g, '')})} max="99999" required className={inputClass} />
+                            <label className={labelClass} htmlFor="item-quantity">Current Quantity <RequiredAsterisk /></label>
+                            <input id="item-quantity" type="number" placeholder="0" value={newItem.quantity || ''} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setNewItem({...newItem, quantity: e.target.value.replace(/\D/g, '')})} max="99999" required className={inputClass} />
                         </div>
                         <div className="flex-1">
-                            <label className={labelClass}>Alert Threshold <RequiredAsterisk /></label>
-                            <input type="number" placeholder="0" value={newItem.low_stock_threshold || ''} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setNewItem({...newItem, low_stock_threshold: e.target.value.replace(/\D/g, '')})} max="99999" required className={inputClass} />
+                            <label className={labelClass} htmlFor="threshold">Alert Threshold <RequiredAsterisk /></label>
+                            <input id="threshold" type="number" placeholder="0" value={newItem.low_stock_threshold || ''} onKeyDown={(e) => ["e", "E", ".", ","].includes(e.key) && e.preventDefault()} onChange={(e) => setNewItem({...newItem, low_stock_threshold: e.target.value.replace(/\D/g, '')})} max="99999" required className={inputClass} />
                         </div>
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-4">
                         <div className="flex-1">
-                            <label className={labelClass}>Category <RequiredAsterisk /></label>
-                            <select value={newItem.category || ''} onChange={(e) => setNewItem({...newItem, category: e.target.value})} required className={`${inputClass} appearance-none`}>
+                            <label className={labelClass} htmlFor="item-category">Category <RequiredAsterisk /></label>
+                            <select id="item-category" value={newItem.category || ''} onChange={(e) => setNewItem({...newItem, category: e.target.value})} required className={`${inputClass} appearance-none`}>
                                 <option value="">Select a Category</option>
                                 {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                             </select>
                         </div>
                         <div className="w-full sm:w-1/3">
-                            <label className={labelClass}>Price (£) <RequiredAsterisk /></label>
-                            <input type="number" step="0.01" placeholder="0.00" value={newItem.price || ''} min="0.01" max="99999.99" required onChange={(e) => { const val = e.target.value; if (val === '' || /^\d*\.?\d{0,2}$/.test(val)) setNewItem({...newItem, price: val}); }} className={inputClass} />
+                            <label className={labelClass} htmlFor="price">Price (£) <RequiredAsterisk /></label>
+                            <input id="price" type="number" step="0.01" placeholder="0.00" value={newItem.price || ''} min="0.01" max="99999.99" required onChange={(e) => { const val = e.target.value; if (val === '' || /^\d*\.?\d{0,2}$/.test(val)) setNewItem({...newItem, price: val}); }} className={inputClass} />
                         </div>
                     </div>
 
                     {/* Not required */}
                     <div>
-                        <label className={labelClass}>Description</label>
-                        <textarea placeholder="Brief description of the item..." value={newItem.description || ''} onChange={(e) => setNewItem({...newItem, description: e.target.value})} className={`${inputClass} min-h-[60px] resize-y`} />
+                        <label className={labelClass} htmlFor="item-description">Description</label>
+                        <textarea id="item-description" placeholder="Brief description of the item..." value={newItem.description || ''} onChange={(e) => setNewItem({...newItem, description: e.target.value})} className={`${inputClass} min-h-[60px] resize-y`} />
                     </div>
                     
                     {/* Image Upload Area */}
                     <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-900/50 flex flex-col gap-3 transition-colors">
-                        <label className={labelClass}>Product Image</label>
+                        <label className={labelClass} htmlFor="item-image">Product Image</label>
                         
                         {/* Dynamic Preview */}
                         {newItem.image && (
