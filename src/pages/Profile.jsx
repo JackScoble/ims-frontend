@@ -143,6 +143,7 @@ const Profile = () => {
             setImageFile(file);
             setImagePreview(URL.createObjectURL(file)); 
             setHasChanges(true);
+            toast.success('Profile picture updated! Remember to save changes and refresh the page.');
         }
     };
 
@@ -172,7 +173,7 @@ const Profile = () => {
             setCompletionPercentage(newCompletion);
             
             setHasChanges(false);
-            toast.success('Profile updated successfully!');
+            toast.success(`Profile updated successfully! ${newCompletion === 100 ? 'Your profile is now complete!' : ''}`);
         } catch (error) {
             toast.error('Failed to update profile.');
         } finally {
