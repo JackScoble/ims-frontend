@@ -31,10 +31,12 @@ function DashboardFilterBar({
     searchTerm, setSearchTerm,
     sortConfig, setSortConfig,
     filterQty, setFilterQty,
+    filterCategory, setFilterCategory,
     filterImage, setFilterImage,
     filterLowStock, setFilterLowStock,
     filterOwner, setFilterOwner,
     uniqueOwners,
+    categories,
     onClearFilters
 }) {
     // Shared class for all inputs and selects to keep them uniform
@@ -98,6 +100,11 @@ function DashboardFilterBar({
                         min={filterQty.min || 0}
                     />
                 </div>
+
+                <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className={inputStyle}>
+                    <option value="">All Categories</option>
+                    {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
+                </select>
 
                 <select value={filterImage} onChange={(e) => setFilterImage(e.target.value)} className={inputStyle}>
                     <option value="">Images: All</option>
