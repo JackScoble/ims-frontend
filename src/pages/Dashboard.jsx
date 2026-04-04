@@ -237,6 +237,10 @@ function Dashboard() {
             case '-created_at': return new Date(b.created_at) - new Date(a.created_at); 
             case 'updated_at': return new Date(a.updated_at) - new Date(b.updated_at);
             case '-updated_at': return new Date(b.updated_at) - new Date(a.updated_at);
+            case '-price': return parseFloat(b.price) - parseFloat(a.price);
+            case 'price': return parseFloat(a.price) - parseFloat(b.price);
+            case 'name': return a.name.localeCompare(b.name);
+            case '-name': return b.name.localeCompare(a.name);
             default: return 0;
         }
     });

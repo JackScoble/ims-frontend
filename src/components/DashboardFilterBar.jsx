@@ -65,6 +65,10 @@ function DashboardFilterBar({
                     <option value="-updated_at">Recently Updated</option>
                     <option value="-quantity">Quantity: High to Low</option>
                     <option value="quantity">Quantity: Low to High</option>
+                    <option value="-price">Price: High to Low</option>
+                    <option value="price">Price: Low to High</option>
+                    <option value="name">Name: A to Z</option>
+                    <option value="-name">Name: Z to A</option>
                 </select>
             </div>
 
@@ -102,7 +106,7 @@ function DashboardFilterBar({
                 </select>
 
                 <select value={filterLowStock} onChange={(e) => setFilterLowStock(e.target.value)} className={inputStyle}>
-                    <option value="">Low Stock: All</option>
+                    <option value="">Stock: All</option>
                     <option value="yes">Low Stock Only</option>
                     <option value="no">Healthy Stock</option>
                 </select>
