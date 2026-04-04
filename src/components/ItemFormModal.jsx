@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import toast from 'react-hot-toast';
 
 /**
  * ItemFormModal Component
@@ -81,7 +82,11 @@ function ItemFormModal({ isOpen, isEditing, newItem, setNewItem, categories, onS
                     {/* Not required */}
                     <div>
                         <label className={labelClass} htmlFor="item-description">Description</label>
-                        <textarea id="item-description" placeholder="Brief description of the item..." value={newItem.description || ''} onChange={(e) => setNewItem({...newItem, description: e.target.value})} className={`${inputClass} min-h-[60px] resize-y`} />
+                        {/* Character Counter Label */}
+                        <span className="text-xs text-gray-500">
+                            {newItem.description?.length || 0} / 1000
+                        </span>
+                        <textarea id="item-description" placeholder="Brief description of the item..." value={newItem.description || ''} onChange={(e) => setNewItem({...newItem, description: e.target.value})} maxLength={1000} className={`${inputClass} min-h-[60px] resize-y`} />
                     </div>
                     
                     {/* Image Upload Area */}
@@ -107,7 +112,21 @@ function ItemFormModal({ isOpen, isEditing, newItem, setNewItem, categories, onS
                             </div>
                         )}
 
-                        <input id="image-upload" type="file" accept="image/*" onChange={(e) => setNewItem({...newItem, image: e.target.files[0]})} className="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-[#8884d8]/10 file:text-[#8884d8] hover:file:bg-[#8884d8]/20 cursor-pointer transition-colors" />
+                        <input
+                            id="image-upload" 
+                            type="file" 
+                            accept="image/*" 
+                            onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file && file.type.startsWith('image/')) {
+                                    setNewItem({ ...newItem, image: file });
+                                } else if (file) {
+                                    toast.error("Please select a valid image file.");
+                                    e.target.value = ""; 
+                                }
+                            }} 
+                            className="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-[#8884d8]/10 file:text-[#8884d8] hover:file:bg-[#8884d8]/20 cursor-pointer transition-colors"
+                        />
                     </div>
                     
                     <div className="flex justify-end gap-3 mt-2 pt-3 border-t border-gray-100 dark:border-gray-700 transition-colors">
