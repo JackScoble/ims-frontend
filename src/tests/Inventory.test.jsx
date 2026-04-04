@@ -109,7 +109,7 @@ describe('Inventory System Integration', () => {
 
     it('filters for "Low Stock Only"', async () => {
       renderDashboard();
-      const lowStockFilter = await screen.findByDisplayValue('Low Stock: All');
+      const lowStockFilter = await screen.findByDisplayValue('Stock: All');
       
       fireEvent.change(lowStockFilter, { target: { value: 'yes' } });
       
