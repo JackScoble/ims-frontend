@@ -37,6 +37,7 @@ function Dashboard() {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState('-created_at'); 
     const [filterQty, setFilterQty] = useState({ min: '', max: '' });
+    const [filterCategory, setFilterCategory] = useState('');
     const [filterImage, setFilterImage] = useState(''); 
     const [filterOwner, setFilterOwner] = useState('');
     const [filterLowStock, setFilterLowStock] = useState('');
@@ -217,6 +218,7 @@ function Dashboard() {
         const min = filterQty.min !== '' ? parseInt(filterQty.min) : 0;
         const max = filterQty.max !== '' ? parseInt(filterQty.max) : Infinity;
         const matchesQty = item.quantity >= min && item.quantity <= max;
+        const matchesCategory = filterCategory === '' || item.category === parseInt(filterCategory);
 
         let matchesImage = true;
         if (filterImage === 'yes') matchesImage = !!item.image;
@@ -228,7 +230,7 @@ function Dashboard() {
         if (filterLowStock === 'yes') matchesLowStock = item.quantity <= (item.low_stock_threshold || 0);
         if (filterLowStock === 'no') matchesLowStock = item.quantity > (item.low_stock_threshold || 0);
 
-        return matchesSearch && matchesQty && matchesImage && matchesOwner && matchesLowStock;
+        return matchesSearch && matchesQty && matchesImage && matchesOwner && matchesLowStock && matchesCategory;
     }).sort((a, b) => {
         switch (sortConfig) {
             case 'quantity': return a.quantity - b.quantity; 
@@ -276,10 +278,12 @@ function Dashboard() {
                 searchTerm={searchTerm} setSearchTerm={setSearchTerm}
                 sortConfig={sortConfig} setSortConfig={setSortConfig}
                 filterQty={filterQty} setFilterQty={setFilterQty}
+                filterCategory={filterCategory} setFilterCategory={setFilterCategory}
                 filterImage={filterImage} setFilterImage={setFilterImage}
                 filterLowStock={filterLowStock} setFilterLowStock={setFilterLowStock}
                 filterOwner={filterOwner} setFilterOwner={setFilterOwner}
                 uniqueOwners={uniqueOwners}
+                categories={categories}
                 onClearFilters={handleClearFilters}
             />
             
