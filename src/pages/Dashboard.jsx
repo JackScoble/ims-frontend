@@ -188,6 +188,7 @@ function Dashboard() {
             if (fileInput) fileInput.value = '';
             
             closeModal();
+            toast.success(`Item ${editingId ? 'updated' : 'created'} successfully.`);
 
         } catch (err) {
             console.error("Submit failed:", err.response?.data);
@@ -254,9 +255,11 @@ function Dashboard() {
         setSearchTerm('');
         setSortConfig('-created_at');
         setFilterQty({min:'', max:''});
+        setFilterCategory('');
         setFilterImage('');
         setFilterOwner('');
         setFilterLowStock('');
+        toast.success('Filters cleared.');
     };
 
     return (

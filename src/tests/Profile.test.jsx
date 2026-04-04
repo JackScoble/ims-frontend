@@ -146,7 +146,7 @@ describe('Profile Component', () => {
 
         await waitFor(() => {
             expect(api.put).toHaveBeenCalledWith('profile/', expect.any(FormData), expect.any(Object));
-            expect(toast.success).toHaveBeenCalledWith('Profile updated successfully!');
+            expect(toast.success).toHaveBeenCalledWith('Profile updated successfully! Your profile is now complete!');
         });
 
         // Ensure the form resets to "Saved" state after the promise resolves
