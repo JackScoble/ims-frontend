@@ -4,6 +4,8 @@
 
 Welcome to the frontend repository for **IMS Pro**, a robust Inventory Management System. This React Single Page Application (SPA) provides a modern, responsive, and intuitive interface for managing stock, processing orders, analyzing trends, and tracking system audits.
 
+✅ **Live Frontend:** [Render Deployed Fronted](https://ims-frontend-9xju.onrender.com/login)
+
 🖥️ **Backend Repository:** [JackScoble/ims-backend](https://github.com/JackScoble/ims-backend)
 
 ---
